@@ -138,4 +138,10 @@ run_logged pnpm-install pnpm install --frozen-lockfile
 run_logged frontend pnpm check
 package_application
 bash scripts/linux-gui-smoke.sh "$WORK/target/release/envweave-desktop" "$ARTIFACTS"
+appimage="$(find "$WORK/target/release/bundle" -type f -name '*.AppImage' -print -quit)"
+if [[ -z "$appimage" ]]; then
+  echo "Packaged AppImage was not found for GUI smoke testing" >&2
+  exit 1
+fi
+bash scripts/linux-gui-smoke.sh "$appimage" "$ARTIFACTS/appimage-smoke"
 collect_results

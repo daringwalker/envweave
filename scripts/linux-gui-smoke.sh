@@ -7,7 +7,6 @@ DISPLAY_NUMBER="${ENVWEAVE_TEST_DISPLAY:-:99}"
 mkdir -p "$ARTIFACTS/logs"
 export DISPLAY="$DISPLAY_NUMBER"
 export GDK_BACKEND=x11
-export WEBKIT_DISABLE_COMPOSITING_MODE=1
 
 Xvfb "$DISPLAY" -screen 0 1440x900x24 -nolisten tcp >"$ARTIFACTS/logs/xvfb.log" 2>&1 &
 xvfb_pid=$!
@@ -23,7 +22,11 @@ ARTIFACTS="$2"
 trap 'kill "${app_pid:-}" "${wm_pid:-}" 2>/dev/null || true' EXIT
 openbox >"$ARTIFACTS/logs/openbox.log" 2>&1 &
 wm_pid=$!
-"$BINARY" >"$ARTIFACTS/logs/gui-smoke.log" 2>&1 &
+command=("$BINARY")
+if [[ "$BINARY" == *.AppImage ]]; then
+  command+=(--appimage-extract-and-run)
+fi
+"${command[@]}" >"$ARTIFACTS/logs/gui-smoke.log" 2>&1 &
 app_pid=$!
 
 window=""
