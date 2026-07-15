@@ -10,7 +10,7 @@ EnvWeave 是一个面向 Linux 与 macOS 的桌面环境迁移管理器。它帮
 
 ## 已实现功能
 
-- 创建、打开和克隆 EnvWeave 仓库，设置 Git origin、提交、fetch、pull --rebase 与 push。
+- 创建、打开和克隆 EnvWeave 仓库，设置 Git origin、提交、fetch、pull --rebase 与 push；变基冲突会列出文件，并提供受限的继续与中止操作。
 - 添加配置文件或目录，扫描同步状态，收集到仓库或应用到本机。
 - 分层配置知识库：84 个按程序/系统分类的内置条目，可在 GUI 中创建、编辑、删除用户 TOML 条目；智能扫描合并内置与用户知识。
 - 用户级/系统级作用域：覆盖会话环境变量、Arch 包管理、systemd、网络、Linux 核心配置及 macOS 全局 PATH/启动项；敏感与系统级条目默认不选。

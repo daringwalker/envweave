@@ -579,6 +579,8 @@ pub struct GitStatusDto {
     pub ahead: u32,
     pub behind: u32,
     pub changed: Vec<ChangedPathDto>,
+    pub conflicts: Vec<ChangedPathDto>,
+    pub rebase_in_progress: bool,
 }
 impl From<GitStatus> for GitStatusDto {
     fn from(value: GitStatus) -> Self {
@@ -596,6 +598,15 @@ impl From<GitStatus> for GitStatusDto {
                     path: v.path.to_string_lossy().into_owned(),
                 })
                 .collect(),
+            conflicts: value
+                .conflicts
+                .into_iter()
+                .map(|v| ChangedPathDto {
+                    code: v.code,
+                    path: v.path.to_string_lossy().into_owned(),
+                })
+                .collect(),
+            rebase_in_progress: value.rebase_in_progress,
         }
     }
 }

@@ -373,6 +373,16 @@ impl AppService {
         git.pull_rebase(repository)?;
         Ok(git.status(repository)?)
     }
+    pub fn git_continue_rebase(&self, repository: &Path) -> Result<GitStatus, ApplicationError> {
+        let git = GitCli::default();
+        git.continue_rebase(repository)?;
+        Ok(git.status(repository)?)
+    }
+    pub fn git_abort_rebase(&self, repository: &Path) -> Result<GitStatus, ApplicationError> {
+        let git = GitCli::default();
+        git.abort_rebase(repository)?;
+        Ok(git.status(repository)?)
+    }
     pub fn git_push(&self, repository: &Path) -> Result<GitStatus, ApplicationError> {
         let git = GitCli::default();
         git.push(repository)?;

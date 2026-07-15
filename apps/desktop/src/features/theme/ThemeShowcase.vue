@@ -70,6 +70,7 @@ onBeforeUnmount(() => {
         <header class="panel-header"><div><p class="eyebrow">Git 同步</p><h1>仓库状态</h1></div><div class="button-row"><button class="button secondary">拉取</button><button class="button primary">推送</button></div></header>
         <div class="git-overview"><div><small>分支</small><strong>main</strong></div><div><small>本地修改</small><strong>3</strong></div><div><small>领先</small><strong>2</strong></div><div><small>落后</small><strong>0</strong></div></div>
         <div class="changed-list"><div><code>M</code><span>files/zshrc</span></div><div><code>A</code><span>packages.toml</span></div><div><code>D</code><span>files/old.conf</span></div></div>
+        <section class="rebase-conflict-panel"><header><div><p class="eyebrow">同步已暂停</p><h2>正在处理 Git 变基冲突</h2></div><span>1 个冲突文件</span></header><p>编辑冲突文件并保留正确内容，继续时只暂存冲突文件。</p><div class="rebase-conflict-list"><div><code>UU</code><span>files/zshrc</span></div></div><footer><button class="button secondary">重新检查</button><span></span><button class="button danger">中止变基</button><button class="button primary">标记已解决并继续</button></footer></section>
         <div class="commit-bar"><input value="chore: migrate workstation configuration"><button class="button primary">提交</button></div>
       </article>
 

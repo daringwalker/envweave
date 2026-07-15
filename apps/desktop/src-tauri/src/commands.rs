@@ -388,6 +388,18 @@ pub async fn git_pull(repository: String) -> Result<GitStatusDto, ApiError> {
         .map(Into::into)
 }
 #[tauri::command]
+pub async fn git_continue_rebase(repository: String) -> Result<GitStatusDto, ApiError> {
+    background(move || AppService.git_continue_rebase(Path::new(&repository)))
+        .await
+        .map(Into::into)
+}
+#[tauri::command]
+pub async fn git_abort_rebase(repository: String) -> Result<GitStatusDto, ApiError> {
+    background(move || AppService.git_abort_rebase(Path::new(&repository)))
+        .await
+        .map(Into::into)
+}
+#[tauri::command]
 pub async fn git_push(repository: String) -> Result<GitStatusDto, ApiError> {
     background(move || AppService.git_push(Path::new(&repository)))
         .await

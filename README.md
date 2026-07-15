@@ -10,7 +10,7 @@ The current `0.1.0-alpha.3` release is a functional developer preview. It provid
 
 ## Features
 
-- Create, open, and clone EnvWeave repositories; configure a Git origin; commit, fetch, pull with rebase, and push.
+- Create, open, and clone EnvWeave repositories; configure a Git origin; commit, fetch, pull with rebase, and push. Interrupted rebases expose conflicted paths and provide guarded continue/abort actions.
 - Add files or directories, scan synchronization state, collect local content into a repository, or apply repository content locally.
 - Layered configuration knowledge base with 84 built-in application and system entries. User TOML entries can be created, edited, and deleted in the GUI and are merged with built-in knowledge during smart scans.
 - User and system scopes covering session environment variables, Arch package management, systemd, networking, Linux kernel settings, and macOS global PATH and launch items. Sensitive and system-level entries are unselected by default.

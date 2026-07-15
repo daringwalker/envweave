@@ -16,6 +16,8 @@ pub struct GitStatus {
     pub ahead: u32,
     pub behind: u32,
     pub changed: Vec<ChangedPath>,
+    pub conflicts: Vec<ChangedPath>,
+    pub rebase_in_progress: bool,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChangedPath {
@@ -48,6 +50,10 @@ pub enum GitError {
     InvalidPath,
     #[error("invalid Git revision")]
     InvalidRevision,
+    #[error("当前仓库没有正在进行的变基操作")]
+    NoRebaseInProgress,
+    #[error("冲突文件中仍有未解决的冲突标记或空白错误。请编辑文件并保留正确内容后再继续")]
+    UnresolvedConflictMarkers,
 }
 
 #[derive(Debug, Clone)]
@@ -101,6 +107,13 @@ impl GitCli {
             )
             .ok()
             .and_then(trimmed_stdout);
+        status.rebase_in_progress = self.rebase_in_progress(path);
+        status.conflicts = status
+            .changed
+            .iter()
+            .filter(|changed| is_conflict_code(&changed.code))
+            .cloned()
+            .collect();
         Ok(status)
     }
     pub fn commit_all(&self, path: &Path, message: &str) -> Result<(), GitError> {
@@ -128,6 +141,33 @@ impl GitCli {
     }
     pub fn pull_rebase(&self, path: &Path) -> Result<(), GitError> {
         self.run(path, &["pull", "--rebase"])?;
+        Ok(())
+    }
+    pub fn continue_rebase(&self, path: &Path) -> Result<(), GitError> {
+        if !self.rebase_in_progress(path) {
+            return Err(GitError::NoRebaseInProgress);
+        }
+        let conflicts = self.status(path)?.conflicts;
+        if !conflicts.is_empty() {
+            if self.run(path, &["diff", "--check"]).is_err() {
+                return Err(GitError::UnresolvedConflictMarkers);
+            }
+            let mut arguments = vec!["add", "--"];
+            let paths = conflicts
+                .iter()
+                .map(|conflict| safe_relative_path(&conflict.path))
+                .collect::<Result<Vec<_>, _>>()?;
+            arguments.extend(paths.iter().map(String::as_str));
+            self.run(path, &arguments)?;
+        }
+        self.run(path, &["-c", "core.editor=true", "rebase", "--continue"])?;
+        Ok(())
+    }
+    pub fn abort_rebase(&self, path: &Path) -> Result<(), GitError> {
+        if !self.rebase_in_progress(path) {
+            return Err(GitError::NoRebaseInProgress);
+        }
+        self.run(path, &["rebase", "--abort"])?;
         Ok(())
     }
     pub fn push(&self, path: &Path) -> Result<(), GitError> {
@@ -231,6 +271,22 @@ impl GitCli {
             ))))
         }
     }
+    fn rebase_in_progress(&self, path: &Path) -> bool {
+        ["rebase-merge", "rebase-apply"].iter().any(|name| {
+            self.run(path, &["rev-parse", "--git-path", name])
+                .ok()
+                .and_then(trimmed_stdout)
+                .is_some_and(|git_path| {
+                    let git_path = PathBuf::from(git_path);
+                    let git_path = if git_path.is_absolute() {
+                        git_path
+                    } else {
+                        path.join(git_path)
+                    };
+                    git_path.exists()
+                })
+        })
+    }
 }
 
 fn safe_relative_path(path: &Path) -> Result<String, GitError> {
@@ -283,6 +339,9 @@ fn parse_status(text: &str) -> GitStatus {
     }
     status
 }
+fn is_conflict_code(code: &str) -> bool {
+    matches!(code, "DD" | "AU" | "UD" | "UA" | "DU" | "AA" | "UU")
+}
 fn sanitize(text: &str) -> String {
     text.lines().take(8).collect::<Vec<_>>().join("\n")
 }
@@ -293,9 +352,12 @@ mod tests {
     use std::fs;
     #[test]
     fn parses_branch_counts_and_changes() {
-        let s = parse_status("## main...origin/main [ahead 2, behind 1]\n M file\n?? new\n");
+        let s = parse_status(
+            "## main...origin/main [ahead 2, behind 1]\n M file\nUU conflict\n?? new\n",
+        );
         assert_eq!(s.branch.as_deref(), Some("main"));
-        assert_eq!((s.ahead, s.behind, s.changed.len()), (2, 1, 2));
+        assert_eq!((s.ahead, s.behind, s.changed.len()), (2, 1, 3));
+        assert!(is_conflict_code(&s.changed[1].code));
     }
     #[test]
     fn push_without_remote_returns_actionable_error() {
@@ -366,5 +428,47 @@ mod tests {
             .run(directory.path(), &["ls-files", ".envweave-backups"])
             .unwrap();
         assert!(tracked.stdout.is_empty());
+    }
+
+    #[test]
+    fn detects_and_aborts_a_conflicted_rebase() {
+        let directory = tempfile::tempdir().unwrap();
+        let git = GitCli::default();
+        git.init(directory.path()).unwrap();
+        git.set_identity(directory.path(), "EnvWeave Test", "test@example.com")
+            .unwrap();
+        fs::create_dir(directory.path().join("files")).unwrap();
+        let file = directory.path().join("files/demo");
+        fs::write(&file, "base\n").unwrap();
+        git.commit_all(directory.path(), "base").unwrap();
+        git.run(directory.path(), &["checkout", "-b", "incoming"])
+            .unwrap();
+        fs::write(&file, "incoming\n").unwrap();
+        git.commit_all(directory.path(), "incoming").unwrap();
+        git.run(directory.path(), &["checkout", "main"]).unwrap();
+        fs::write(&file, "local\n").unwrap();
+        git.commit_all(directory.path(), "local").unwrap();
+
+        assert!(git.run(directory.path(), &["rebase", "incoming"]).is_err());
+        let status = git.status(directory.path()).unwrap();
+        assert!(status.rebase_in_progress);
+        assert_eq!(status.conflicts.len(), 1);
+        assert_eq!(status.conflicts[0].path, PathBuf::from("files/demo"));
+        assert_eq!(
+            git.continue_rebase(directory.path())
+                .unwrap_err()
+                .to_string(),
+            "冲突文件中仍有未解决的冲突标记或空白错误。请编辑文件并保留正确内容后再继续"
+        );
+
+        git.abort_rebase(directory.path()).unwrap();
+        assert!(!git.status(directory.path()).unwrap().rebase_in_progress);
+        assert_eq!(fs::read_to_string(&file).unwrap(), "local\n");
+
+        assert!(git.run(directory.path(), &["rebase", "incoming"]).is_err());
+        fs::write(&file, "resolved\n").unwrap();
+        git.continue_rebase(directory.path()).unwrap();
+        assert!(!git.status(directory.path()).unwrap().rebase_in_progress);
+        assert_eq!(fs::read_to_string(&file).unwrap(), "resolved\n");
     }
 }

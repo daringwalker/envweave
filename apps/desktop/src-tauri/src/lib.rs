@@ -86,6 +86,8 @@ pub fn run() {
             commands::git_commit,
             commands::git_fetch,
             commands::git_pull,
+            commands::git_continue_rebase,
+            commands::git_abort_rebase,
             commands::git_push,
             commands::git_set_origin,
             commands::git_set_identity,
