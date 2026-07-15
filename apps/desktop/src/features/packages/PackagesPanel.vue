@@ -106,8 +106,8 @@ async function install(action: InstallActionDto) {
         <span class="provider-badge">{{ providerLabel(item.provider) }}</span>
         <div class="package-main"><strong>{{ item.name }}</strong><small>{{ item.kind }}<template v-if="item.version"> · {{ item.version }}</template><template v-if="item.repository"> · {{ item.repository }}</template></small><code v-if="item.executablePath">{{ item.executablePath }}</code></div>
         <div v-if="item.provider==='portable'" class="portable-source" @click.stop>
-          <label>下载页面<input v-model.trim="item.sourcePage" placeholder="https://example.com/download"></label>
-          <label>直接下载链接<input v-model.trim="item.downloadUrl" placeholder="https://example.com/app.AppImage"></label>
+          <label>下载页面<input v-model.trim="item.sourcePage" placeholder="可选：软件官网或发布页"></label>
+          <label>直接下载链接<input v-model.trim="item.downloadUrl" placeholder="可选：安装文件直链"></label>
           <small>{{ item.desktopFile ? `来自 ${item.desktopFile}` : "手动记录" }}</small>
         </div>
       </article>

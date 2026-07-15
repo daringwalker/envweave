@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, ref } from "vue";
+import { defineAsyncComponent, onBeforeUnmount, onMounted, ref } from "vue";
 import RepositoryPicker from "./features/repository/RepositoryPicker.vue";
 import ConfigPanel from "./features/dotfiles/ConfigPanel.vue";
 import PackagesPanel from "./features/packages/PackagesPanel.vue";
@@ -19,13 +19,30 @@ const active=ref("配置文件");const repository=ref<RepositoryInspectionDto>()
 const pendingRestoreCount=ref(0);
 const aurHelper=ref(localStorage.getItem("envweave.aurHelper")??"");
 const lastRepositoryKey="envweave.lastRepository";
+type ThemePreference = "system" | "light" | "dark";
+const savedTheme=localStorage.getItem("envweave.theme");
+const themePreference=ref<ThemePreference>(savedTheme==="light"||savedTheme==="dark"?savedTheme:"system");
+const systemTheme=window.matchMedia("(prefers-color-scheme: dark)");
+
+function applyTheme(value:ThemePreference){
+  document.documentElement.dataset.theme=value==="dark"||(value==="system"&&systemTheme.matches)?"dark":"light";
+}
+function setTheme(value:ThemePreference){
+  themePreference.value=value;
+  value==="system"?localStorage.removeItem("envweave.theme"):localStorage.setItem("envweave.theme",value);
+  applyTheme(value);
+}
+function followSystemTheme(){if(themePreference.value==="system")applyTheme("system");}
+applyTheme(themePreference.value);
 
 onMounted(async () => {
+  systemTheme.addEventListener("change",followSystemTheme);
   const snapshotTask=desktopApi.snapshot().then((value)=>{snapshot.value=value;}).catch(()=>{snapshot.value={appName:"EnvWeave",version:"web-preview",platform:"preview"};});
   const path=localStorage.getItem(lastRepositoryKey);
   const repositoryTask=path?desktopApi.inspectRepository(path).then((value)=>{if(value.hasManifest)repository.value=value;else localStorage.removeItem(lastRepositoryKey);}).catch(()=>localStorage.removeItem(lastRepositoryKey)):Promise.resolve();
   await Promise.all([snapshotTask,repositoryTask]);restoringRepository.value=false;
 });
+onBeforeUnmount(()=>systemTheme.removeEventListener("change",followSystemTheme));
 
 const navigation = [
   ["概览", "grid"], ["配置文件", "file"], ["恢复向导", "restore"], ["软件包", "package"],
@@ -61,7 +78,7 @@ function selectRepository(value:RepositoryInspectionDto){if(!allowDiscardDraft()
         <PackagesPanel v-show="active==='软件包'" :repository="repository.path" :aur-helper="aurHelper" />
         <SyncPanel v-show="active==='同步'" :repository="repository.path" />
         <BackupsPanel v-show="active==='备份'" :repository="repository.path" />
-        <div v-show="active==='设置'" class="kept-page"><SettingsPanel :repository="repository.path" :aur-helper="aurHelper" @aur-changed="aurHelper=$event" /></div>
+        <div v-show="active==='设置'" class="kept-page"><SettingsPanel :repository="repository.path" :aur-helper="aurHelper" :theme-preference="themePreference" @aur-changed="aurHelper=$event" @theme-changed="setTheme" /></div>
       </template>
     </main>
   </div>

@@ -409,7 +409,8 @@ fn run_command(
 ) -> Result<Output, PackageError> {
     let executable =
         resolve_program(program).ok_or_else(|| PackageError::Unavailable(program.into()))?;
-    let output = Command::new(executable)
+    let mut command = system_command(&executable);
+    let output = command
         .args(args)
         .env("LC_ALL", "C")
         .output()
@@ -437,6 +438,27 @@ fn run_command(
         Err(PackageError::Command(detail))
     }
 }
+
+// Desktop bundles (especially AppImage builds) commonly prepend their own
+// libraries so the GUI can start on different distributions. System package
+// managers must not inherit those paths: pacman and Flatpak are linked against
+// the host's curl/glib stack and can otherwise fail with lookup errors before
+// their main function is reached.
+fn system_command(executable: &Path) -> Command {
+    let mut command = Command::new(executable);
+    for variable in [
+        "LD_LIBRARY_PATH",
+        "LD_PRELOAD",
+        "LD_AUDIT",
+        "DYLD_LIBRARY_PATH",
+        "DYLD_FALLBACK_LIBRARY_PATH",
+        "DYLD_INSERT_LIBRARIES",
+    ] {
+        command.env_remove(variable);
+    }
+    command
+}
+
 fn resolve_program(program: &str) -> Option<PathBuf> {
     let direct = PathBuf::from(program);
     if direct.components().count() > 1 && direct.is_file() {
@@ -831,6 +853,25 @@ mod tests {
         let message = error.to_string();
         assert!(message.contains("sh -c exit 7"));
         assert!(message.contains("status"));
+    }
+    #[test]
+    fn system_commands_do_not_inherit_bundled_dynamic_libraries() {
+        let command = system_command(Path::new("/bin/true"));
+        let removed = command
+            .get_envs()
+            .filter_map(|(name, value)| value.is_none().then_some(name.to_string_lossy()))
+            .collect::<HashSet<_>>();
+
+        for variable in [
+            "LD_LIBRARY_PATH",
+            "LD_PRELOAD",
+            "LD_AUDIT",
+            "DYLD_LIBRARY_PATH",
+            "DYLD_FALLBACK_LIBRARY_PATH",
+            "DYLD_INSERT_LIBRARIES",
+        ] {
+            assert!(removed.contains(variable), "{variable} should be removed");
+        }
     }
     #[test]
     fn reports_a_missing_program_before_execution() {
