@@ -7,7 +7,7 @@ import type { ConfigItemDto, DiffSessionDto, FileRevisionDto, TextDocumentDto } 
 
 const LOCAL = "__local__";
 const WORKTREE = "__worktree__";
-const props = defineProps<{ repository: string; item: ConfigItemDto }>();
+const props = defineProps<{ repository: string; item: ConfigItemDto; theme: "light" | "dark" }>();
 const emit = defineEmits<{ repositorySaved: []; dirtyChanged: [value: boolean] }>();
 
 const host = ref<HTMLDivElement>();
@@ -44,6 +44,7 @@ const rightTitle = computed(() => versionTitle(rightVersion.value, "仓库工作
 
 onMounted(() => {
   if (!host.value) return;
+  monaco.editor.setTheme(editorTheme(props.theme));
   editor = monaco.editor.createDiffEditor(host.value, {
     automaticLayout: true,
     renderSideBySide: sideBySide.value,
@@ -67,6 +68,7 @@ onMounted(() => {
 });
 
 watch(() => [props.repository, props.item.id], () => loadDocuments());
+watch(() => props.theme, (value) => monaco.editor.setTheme(editorTheme(value)));
 watch([leftVersion, rightVersion], (_next, previous) => {
   if (previous?.[1] === WORKTREE && modified) {
     worktreeDraft = modified.getValue();
@@ -167,6 +169,10 @@ async function renderComparison() {
 
 function uniqueUri(side: string) {
   return monaco.Uri.parse(`envweave://${side}/${props.item.id}?${Date.now()}-${Math.random()}`);
+}
+
+function editorTheme(theme: "light" | "dark") {
+  return theme === "dark" ? "envweave-dark" : "envweave-light";
 }
 
 function versionTitle(value: string, fallback: string) {

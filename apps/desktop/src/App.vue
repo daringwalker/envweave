@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeUnmount, onMounted, ref } from "vue";
+import { defineAsyncComponent, defineComponent, onBeforeUnmount, onMounted, ref } from "vue";
 import RepositoryPicker from "./features/repository/RepositoryPicker.vue";
 import ConfigPanel from "./features/dotfiles/ConfigPanel.vue";
 import PackagesPanel from "./features/packages/PackagesPanel.vue";
@@ -12,6 +12,10 @@ import { desktopApi } from "./shared/api";
 import type { AppSnapshotDto, ConfigItemDto, RepositoryInspectionDto } from "./shared/bindings";
 
 const snapshot = ref<AppSnapshotDto>();
+const themeQa=import.meta.env.DEV&&new URLSearchParams(window.location.search).has("theme-qa");
+const ThemeShowcase=import.meta.env.DEV
+  ?defineAsyncComponent(()=>import("./features/theme/ThemeShowcase.vue"))
+  :defineComponent({name:"ThemeShowcaseDisabled",render:()=>null});
 const DiffWorkbench = defineAsyncComponent(
   () => import("./features/diff-editor/DiffWorkbench.vue"),
 );
@@ -20,12 +24,16 @@ const pendingRestoreCount=ref(0);
 const aurHelper=ref(localStorage.getItem("envweave.aurHelper")??"");
 const lastRepositoryKey="envweave.lastRepository";
 type ThemePreference = "system" | "light" | "dark";
+type ResolvedTheme = "light" | "dark";
 const savedTheme=localStorage.getItem("envweave.theme");
 const themePreference=ref<ThemePreference>(savedTheme==="light"||savedTheme==="dark"?savedTheme:"system");
 const systemTheme=window.matchMedia("(prefers-color-scheme: dark)");
+const resolvedTheme=ref<ResolvedTheme>("light");
 
 function applyTheme(value:ThemePreference){
-  document.documentElement.dataset.theme=value==="dark"||(value==="system"&&systemTheme.matches)?"dark":"light";
+  const resolved:ResolvedTheme=value==="dark"||(value==="system"&&systemTheme.matches)?"dark":"light";
+  resolvedTheme.value=resolved;
+  document.documentElement.dataset.theme=resolved;
 }
 function setTheme(value:ThemePreference){
   themePreference.value=value;
@@ -37,6 +45,7 @@ applyTheme(themePreference.value);
 
 onMounted(async () => {
   systemTheme.addEventListener("change",followSystemTheme);
+  if(themeQa){restoringRepository.value=false;return;}
   const snapshotTask=desktopApi.snapshot().then((value)=>{snapshot.value=value;}).catch(()=>{snapshot.value={appName:"EnvWeave",version:"web-preview",platform:"preview"};});
   const path=localStorage.getItem(lastRepositoryKey);
   const repositoryTask=path?desktopApi.inspectRepository(path).then((value)=>{if(value.hasManifest)repository.value=value;else localStorage.removeItem(lastRepositoryKey);}).catch(()=>localStorage.removeItem(lastRepositoryKey)):Promise.resolve();
@@ -53,7 +62,8 @@ function selectRepository(value:RepositoryInspectionDto){if(!allowDiscardDraft()
 </script>
 
 <template>
-  <div class="app-shell">
+  <ThemeShowcase v-if="themeQa" />
+  <div v-else class="app-shell">
     <aside class="sidebar">
       <div class="brand"><span class="brand-mark">E</span><div><strong>EnvWeave</strong><small>环境迁移管理器</small></div></div>
       <nav>
@@ -72,7 +82,7 @@ function selectRepository(value:RepositoryInspectionDto){if(!allowDiscardDraft()
       <div v-if="!repository&&restoringRepository" class="welcome panel"><div class="welcome-mark">E</div><h1>正在恢复上次仓库</h1><p>正在校验仓库路径和 EnvWeave 清单…</p></div>
       <div v-else-if="!repository" class="welcome panel"><div class="welcome-mark">E</div><h1>开始编织你的开发环境</h1><p>选择已有 EnvWeave 仓库，或选择一个空目录并初始化。配置、软件包和 Git 历史都由你自己的仓库掌控。</p></div>
       <template v-else>
-        <div v-show="active==='配置文件'" class="kept-page"><ConfigPanel :repository="repository.path" :refresh-revision="configRevision" :allow-selection="allowDiscardDraft" @select="selectedItem=$event"/><DiffWorkbench v-if="selectedItem&&selectedItem.kind==='file'" :repository="repository.path" :item="selectedItem" @repository-saved="configRevision++" @dirty-changed="diffDirty=$event"/></div>
+        <div v-show="active==='配置文件'" class="kept-page"><ConfigPanel :repository="repository.path" :refresh-revision="configRevision" :allow-selection="allowDiscardDraft" @select="selectedItem=$event"/><DiffWorkbench v-if="selectedItem&&selectedItem.kind==='file'" :repository="repository.path" :item="selectedItem" :theme="resolvedTheme" @repository-saved="configRevision++" @dirty-changed="diffDirty=$event"/></div>
         <OverviewPanel v-show="active==='概览'" :repository="repository.path" />
         <RestorePanel v-show="active==='恢复向导'" :repository="repository.path" :aur-helper="aurHelper" @pending-changed="pendingRestoreCount=$event" />
         <PackagesPanel v-show="active==='软件包'" :repository="repository.path" :aur-helper="aurHelper" />
