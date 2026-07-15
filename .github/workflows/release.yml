@@ -105,7 +105,11 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: pnpm --dir apps/desktop tauri build --bundles "${{ matrix.bundles }}"
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == *-* ]]; then
+            unset APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID
+          fi
+          pnpm --dir apps/desktop tauri build --bundles "${{ matrix.bundles }}"
       - name: Collect release artifacts
         run: bash scripts/collect-release-artifacts.sh "${{ matrix.platform }}" "${{ matrix.arch }}" release-artifacts
       - uses: actions/upload-artifact@v6
