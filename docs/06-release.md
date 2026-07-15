@@ -2,7 +2,7 @@
 
 ## 发布级别
 
-当前 `0.1.0-alpha.2` 是开发者预览版，适合在测试用户、测试账户或已有完整系统备份的机器上验证。它不是稳定版，也不承诺兼容早期开发仓库格式。
+当前 `0.1.0-alpha.3` 是开发者预览版，适合在测试用户、测试账户或已有完整系统备份的机器上验证。它不是稳定版，也不承诺兼容早期开发仓库格式。
 
 ## 官方构建目标
 
@@ -23,13 +23,13 @@ chmod +x EnvWeave_*.AppImage
 ./EnvWeave_*.AppImage
 ```
 
-EnvWeave 会在 Linux Wayland 会话中禁用 WebKitGTK 的 DMABUF 快速渲染路径，以规避部分 KDE、NVIDIA 和滚动发行版组合出现的空白窗口。程序会尊重用户预先设置的 WebKit 环境变量。如果仍然空白，可用彻底关闭硬件合成的方式诊断：
+EnvWeave 会在 Linux Wayland 会话中禁用 WebKitGTK 的 DMABUF 快速渲染路径。Ubuntu 构建的 AppImage 还会在 Arch 系发行版上从 `AppRun` 预加载系统 Wayland 客户端库，避免内嵌库与滚动发行版 EGL 栈冲突。如果仍然空白，可用彻底关闭硬件合成的方式诊断：
 
 ```bash
 WEBKIT_DISABLE_COMPOSITING_MODE=1 ./EnvWeave_*.AppImage
 ```
 
-发布验收必须直接启动最终 AppImage；只验证打包前的原生二进制不足以覆盖 AppRun、内嵌 GTK/WebKit 库和运行时环境差异。
+发布验收必须直接启动最终 AppImage，并把 Ubuntu 构建产物复制到 Arch 环境再次启动；只验证打包前的原生二进制或同发行版构建产物不足以覆盖 AppRun、内嵌 GTK/WebKit 库和跨发行版运行时差异。
 
 ### Debian/Ubuntu
 

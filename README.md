@@ -6,7 +6,7 @@ EnvWeave is a desktop environment migration manager for Linux and macOS. It safe
 
 In addition to configuration files, EnvWeave records installed software and assists with restoration. It supports Arch Linux pacman/AUR packages, Flatpak, Homebrew, Mac App Store applications, and portable Linux applications discovered through Desktop Entry files, including AppImages and extracted applications.
 
-The current `0.1.0-alpha.2` release is a functional developer preview. It provides a complete local migration workflow plus foundational Git and package restoration features. Alpha releases are intended for controlled testing and should not be used as the only backup of important data.
+The current `0.1.0-alpha.3` release is a functional developer preview. It provides a complete local migration workflow plus foundational Git and package restoration features. Alpha releases are intended for controlled testing and should not be used as the only backup of important data.
 
 ## Features
 

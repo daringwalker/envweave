@@ -112,6 +112,28 @@ run_distribution() {
   echo "[$distro] results: $output"
 }
 
+run_ubuntu_appimage_on_arch() {
+  local name="envweave-arch"
+  local appimage
+  appimage="$(find "$ROOT/artifacts/linux/ubuntu/bundles" -type f -name '*.AppImage' -print -quit)"
+  if [[ -z "$appimage" ]]; then
+    echo "Ubuntu AppImage is required for the Arch portability test" >&2
+    exit 1
+  fi
+  local guest_appimage="/tmp/envweave-ubuntu-build.AppImage"
+  local guest_smoke="/tmp/envweave-linux-gui-smoke.sh"
+  local guest_results="/tmp/envweave-cross-distro-smoke"
+  local output="$ROOT/artifacts/linux/cross-distro"
+  limactl copy "$appimage" "$name:$guest_appimage"
+  limactl copy "$ROOT/scripts/linux-gui-smoke.sh" "$name:$guest_smoke"
+  limactl shell "$name" -- bash -lc \
+    "chmod +x '$guest_appimage'; rm -rf '$guest_results'; bash '$guest_smoke' '$guest_appimage' '$guest_results'"
+  rm -rf "$output"
+  mkdir -p "$output"
+  limactl copy "$name:$guest_results/." "$output"
+  echo "[ubuntu -> arch] AppImage results: $output"
+}
+
 manage_instances() {
   local operation="$1"
   local name
@@ -138,6 +160,7 @@ case "$ACTION" in
     ensure_runtime
     run_distribution ubuntu
     run_distribution arch
+    run_ubuntu_appimage_on_arch
     ;;
   status)
     command -v limactl >/dev/null && limactl list || echo "Lima is not installed"

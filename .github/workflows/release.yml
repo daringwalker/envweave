@@ -110,6 +110,11 @@ jobs:
             unset APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID
           fi
           pnpm --dir apps/desktop tauri build --bundles "${{ matrix.bundles }}"
+      - name: Patch Linux AppImage launcher
+        if: runner.os == 'Linux'
+        run: |
+          appimage="$(find target/release/bundle -type f -name '*.AppImage' -print -quit)"
+          bash scripts/patch-linux-appimage.sh "$appimage"
       - name: Collect release artifacts
         run: bash scripts/collect-release-artifacts.sh "${{ matrix.platform }}" "${{ matrix.arch }}" release-artifacts
       - uses: actions/upload-artifact@v6
