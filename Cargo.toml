@@ -1,0 +1,38 @@
+[workspace]
+resolver = "2"
+members = [
+  "apps/desktop/src-tauri",
+  "crates/envweave-domain",
+  "crates/envweave-application",
+  "crates/envweave-manifest",
+  "crates/envweave-files",
+  "crates/envweave-diff",
+  "crates/envweave-backup",
+  "crates/envweave-git",
+  "crates/envweave-packages",
+  "crates/envweave-security",
+  "crates/envweave-discovery",
+  "crates/envweave-restore",
+]
+
+[workspace.package]
+version = "0.1.0-alpha.1"
+edition = "2024"
+license = "MIT"
+rust-version = "1.85"
+
+[workspace.dependencies]
+envweave-domain = { path = "crates/envweave-domain" }
+envweave-application = { path = "crates/envweave-application" }
+envweave-discovery = { path = "crates/envweave-discovery" }
+envweave-restore = { path = "crates/envweave-restore" }
+serde = { version = "1.0.228", features = ["derive"] }
+thiserror = "2.0.18"
+toml = "0.9.8"
+tempfile = "3.23.0"
+blake3 = "1.8.2"
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1

@@ -1,0 +1,14 @@
+[package]
+name = "envweave-diff"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+envweave-domain.workspace = true
+blake3.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

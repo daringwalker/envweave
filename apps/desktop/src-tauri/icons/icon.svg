@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="EnvWeave">
+  <defs>
+    <linearGradient id="bg" x1="72" y1="48" x2="440" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1f352c"/>
+      <stop offset="1" stop-color="#101a16"/>
+    </linearGradient>
+    <linearGradient id="thread" x1="144" y1="116" x2="382" y2="392" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a8f0c1"/>
+      <stop offset="1" stop-color="#59ca8a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <path d="M142 132h216M142 256h160M142 380h216" fill="none" stroke="url(#thread)" stroke-width="42" stroke-linecap="round"/>
+  <path d="M142 132v248" fill="none" stroke="#e9fff0" stroke-width="42" stroke-linecap="round"/>
+  <path d="M326 132c-44 22-44 102 0 124s44 102 0 124" fill="none" stroke="#e9fff0" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="326" cy="132" r="18" fill="#78dfa0"/>
+  <circle cx="326" cy="256" r="18" fill="#78dfa0"/>
+  <circle cx="326" cy="380" r="18" fill="#78dfa0"/>
+</svg>

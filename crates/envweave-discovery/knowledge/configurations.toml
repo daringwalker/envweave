@@ -1,0 +1,864 @@
+version = 1
+
+[[applications]]
+id = "zsh"
+name = "Zsh"
+category = "shell"
+packages = ["zsh"]
+executables = ["zsh"]
+configs = [
+  { id = "zshrc", path = "~/.zshrc", description = "交互式 Shell 配置" },
+  { id = "zprofile", path = "~/.zprofile", description = "登录 Shell 配置" },
+  { id = "config", path = "~/.config/zsh", description = "Zsh 配置目录" },
+  { id = "history", path = "~/.zsh_history", role = "history", sensitive = true, recommended = false, description = "命令历史可能包含主机、路径、参数或误输入的密钥" },
+]
+
+[[applications]]
+id = "bash"
+name = "Bash"
+category = "shell"
+packages = ["bash"]
+executables = ["bash"]
+configs = [
+  { id = "bashrc", path = "~/.bashrc", description = "交互式 Shell 配置" },
+  { id = "profile", path = "~/.bash_profile", description = "登录 Shell 配置" },
+  { id = "bash-profile", path = "~/.profile", description = "通用登录 Shell 配置" },
+  { id = "history", path = "~/.bash_history", role = "history", sensitive = true, recommended = false, description = "命令历史可能包含主机、路径、参数或误输入的密钥" },
+]
+
+[[applications]]
+id = "fish"
+name = "Fish"
+category = "shell"
+packages = ["fish"]
+executables = ["fish"]
+configs = [
+  { id = "config", path = "~/.config/fish", description = "Fish 配置与函数" },
+  { id = "history", path = "~/.local/share/fish/fish_history", role = "history", sensitive = true, recommended = false, description = "Fish 命令历史，可能包含敏感参数" },
+]
+
+[[applications]]
+id = "nushell"
+name = "Nushell"
+category = "shell"
+packages = ["nushell", "nu"]
+executables = ["nu"]
+configs = [
+  { id = "config", path = "~/.config/nushell/config.nu", description = "Nushell 主配置" },
+  { id = "environment", path = "~/.config/nushell/env.nu", description = "Nushell 环境配置" },
+  { id = "history-text", path = "~/.config/nushell/history.txt", role = "history", sensitive = true, recommended = false, description = "Nushell 文本历史" },
+  { id = "history-sqlite", path = "~/.config/nushell/history.sqlite3", role = "history", sensitive = true, recommended = false, description = "Nushell SQLite 历史" },
+]
+
+[[applications]]
+id = "git"
+name = "Git"
+category = "version-control"
+packages = ["git"]
+executables = ["git"]
+configs = [
+  { id = "gitconfig", path = "~/.gitconfig", description = "Git 用户配置" },
+  { id = "config", path = "~/.config/git/config", description = "XDG Git 配置" },
+  { id = "ignore", path = "~/.config/git/ignore", description = "全局忽略规则" },
+]
+
+[[applications]]
+id = "ssh"
+name = "OpenSSH"
+category = "security"
+packages = ["openssh"]
+executables = ["ssh"]
+configs = [{ id = "config", path = "~/.ssh/config", sensitive = true, recommended = false, description = "可能包含内网主机和用户名，不包含私钥" }]
+
+[[applications]]
+id = "nvim"
+name = "Neovim"
+category = "editor"
+packages = ["neovim"]
+executables = ["nvim"]
+configs = [{ id = "config", path = "~/.config/nvim", description = "Neovim 配置、插件声明和锁文件" }]
+
+[[applications]]
+id = "vim"
+name = "Vim"
+category = "editor"
+packages = ["vim"]
+executables = ["vim"]
+configs = [
+  { id = "vimrc", path = "~/.vimrc", description = "Vim 主配置" },
+  { id = "vim", path = "~/.vim", description = "Vim 配置目录" },
+]
+
+[[applications]]
+id = "helix"
+name = "Helix"
+category = "editor"
+packages = ["helix"]
+executables = ["hx"]
+configs = [{ id = "config", path = "~/.config/helix", description = "Helix 编辑器配置" }]
+
+[[applications]]
+id = "vscode"
+name = "Visual Studio Code"
+category = "editor"
+packages = ["visual-studio-code", "visual-studio-code-bin", "code"]
+executables = ["code"]
+configs = [
+  { id = "settings-mac", path = "~/Library/Application Support/Code/User/settings.json", platforms = ["macos"], description = "VS Code 用户设置" },
+  { id = "keybindings-mac", path = "~/Library/Application Support/Code/User/keybindings.json", platforms = ["macos"], description = "VS Code 快捷键" },
+  { id = "snippets-mac", path = "~/Library/Application Support/Code/User/snippets", platforms = ["macos"], description = "VS Code 用户代码片段" },
+  { id = "settings-linux", path = "~/.config/Code/User/settings.json", platforms = ["linux"], description = "VS Code 用户设置" },
+  { id = "keybindings-linux", path = "~/.config/Code/User/keybindings.json", platforms = ["linux"], description = "VS Code 快捷键" },
+  { id = "snippets-linux", path = "~/.config/Code/User/snippets", platforms = ["linux"], description = "VS Code 用户代码片段" },
+  { id = "flags-linux", path = "~/.config/code-flags.conf", role = "flags", platforms = ["linux"], description = "Arch Linux Code 启动参数" },
+]
+
+[[applications]]
+id = "cursor"
+name = "Cursor"
+category = "editor"
+packages = ["cursor", "cursor-bin"]
+executables = ["cursor"]
+configs = [
+  { id = "settings-mac", path = "~/Library/Application Support/Cursor/User/settings.json", platforms = ["macos"], description = "Cursor 用户设置" },
+  { id = "keybindings-mac", path = "~/Library/Application Support/Cursor/User/keybindings.json", platforms = ["macos"], description = "Cursor 快捷键" },
+  { id = "settings-linux", path = "~/.config/Cursor/User/settings.json", platforms = ["linux"], description = "Cursor 用户设置" },
+  { id = "keybindings-linux", path = "~/.config/Cursor/User/keybindings.json", platforms = ["linux"], description = "Cursor 快捷键" },
+]
+
+[[applications]]
+id = "zed"
+name = "Zed"
+category = "editor"
+packages = ["zed", "zed-preview"]
+executables = ["zed"]
+configs = [{ id = "config", path = "~/.config/zed", description = "Zed 设置、键位和任务" }]
+
+[[applications]]
+id = "tmux"
+name = "tmux"
+category = "terminal"
+packages = ["tmux"]
+executables = ["tmux"]
+configs = [
+  { id = "tmux-conf", path = "~/.tmux.conf", description = "tmux 主配置" },
+  { id = "config", path = "~/.config/tmux", description = "tmux XDG 配置" },
+]
+
+[[applications]]
+id = "starship"
+name = "Starship"
+category = "shell"
+packages = ["starship"]
+executables = ["starship"]
+configs = [{ id = "config", path = "~/.config/starship.toml", description = "跨 Shell 提示符配置" }]
+
+[[applications]]
+id = "alacritty"
+name = "Alacritty"
+category = "terminal"
+packages = ["alacritty"]
+executables = ["alacritty"]
+configs = [{ id = "config", path = "~/.config/alacritty", description = "Alacritty 终端配置" }]
+
+[[applications]]
+id = "kitty"
+name = "Kitty"
+category = "terminal"
+packages = ["kitty"]
+executables = ["kitty"]
+configs = [{ id = "config", path = "~/.config/kitty", description = "Kitty 终端配置" }]
+
+[[applications]]
+id = "wezterm"
+name = "WezTerm"
+category = "terminal"
+packages = ["wezterm"]
+executables = ["wezterm"]
+configs = [
+  { id = "wezterm-lua", path = "~/.wezterm.lua", description = "WezTerm 主配置" },
+  { id = "config", path = "~/.config/wezterm", description = "WezTerm 配置目录" },
+]
+
+[[applications]]
+id = "ghostty"
+name = "Ghostty"
+category = "terminal"
+packages = ["ghostty"]
+executables = ["ghostty"]
+configs = [{ id = "config", path = "~/.config/ghostty", description = "Ghostty 终端配置" }]
+
+[[applications]]
+id = "lazygit"
+name = "lazygit"
+category = "version-control"
+packages = ["lazygit"]
+executables = ["lazygit"]
+configs = [{ id = "config", path = "~/.config/lazygit/config.yml", description = "lazygit 用户配置" }]
+
+[[applications]]
+id = "gitui"
+name = "gitui"
+category = "version-control"
+packages = ["gitui"]
+executables = ["gitui"]
+configs = [{ id = "config", path = "~/.config/gitui", description = "gitui 主题和键位" }]
+
+[[applications]]
+id = "yazi"
+name = "Yazi"
+category = "file-manager"
+packages = ["yazi", "yazi-fm"]
+executables = ["yazi"]
+configs = [{ id = "config", path = "~/.config/yazi", description = "Yazi 文件管理器配置" }]
+
+[[applications]]
+id = "atuin"
+name = "Atuin"
+category = "shell"
+packages = ["atuin"]
+executables = ["atuin"]
+configs = [{ id = "config", path = "~/.config/atuin/config.toml", description = "Atuin 客户端设置，不包含密钥" }]
+
+[[applications]]
+id = "mise"
+name = "mise"
+category = "developer-tools"
+packages = ["mise"]
+executables = ["mise"]
+configs = [{ id = "config", path = "~/.config/mise/config.toml", description = "全局工具版本配置" }]
+
+[[applications]]
+id = "direnv"
+name = "direnv"
+category = "developer-tools"
+packages = ["direnv"]
+executables = ["direnv"]
+configs = [{ id = "direnvrc", path = "~/.config/direnv/direnvrc", description = "全局 direnv 钩子" }]
+
+[[applications]]
+id = "aerospace"
+name = "AeroSpace"
+category = "desktop"
+packages = ["aerospace"]
+executables = ["aerospace"]
+configs = [{ id = "config", path = "~/.aerospace.toml", platforms = ["macos"], description = "macOS 平铺窗口管理配置" }]
+
+[[applications]]
+id = "karabiner"
+name = "Karabiner-Elements"
+category = "desktop"
+packages = ["karabiner-elements"]
+configs = [{ id = "config", path = "~/.config/karabiner/karabiner.json", platforms = ["macos"], description = "键盘映射规则" }]
+
+[[applications]]
+id = "yabai"
+name = "yabai"
+category = "desktop"
+packages = ["yabai"]
+executables = ["yabai"]
+configs = [{ id = "config", path = "~/.yabairc", platforms = ["macos"], description = "yabai 窗口管理配置" }]
+
+[[applications]]
+id = "skhd"
+name = "skhd"
+category = "desktop"
+packages = ["skhd"]
+executables = ["skhd"]
+configs = [{ id = "config", path = "~/.skhdrc", platforms = ["macos"], description = "skhd 全局快捷键" }]
+
+[[applications]]
+id = "kubernetes"
+name = "Kubernetes"
+category = "cloud"
+packages = ["kubectl", "kubernetes-cli"]
+executables = ["kubectl"]
+configs = [{ id = "kubeconfig", path = "~/.kube/config", sensitive = true, recommended = false, description = "通常包含集群地址、证书或访问令牌" }]
+
+[[applications]]
+id = "aws"
+name = "AWS CLI"
+category = "cloud"
+packages = ["aws-cli", "awscli"]
+executables = ["aws"]
+configs = [
+  { id = "config", path = "~/.aws/config", sensitive = true, recommended = false, description = "AWS 配置和账户信息" },
+  { id = "credentials", path = "~/.aws/credentials", sensitive = true, recommended = false, description = "包含访问密钥，不建议进入普通 Git 仓库" },
+]
+
+[[applications]]
+id = "npm"
+name = "npm"
+category = "runtime"
+packages = ["node", "nodejs", "npm"]
+executables = ["npm"]
+configs = [{ id = "npmrc", path = "~/.npmrc", sensitive = true, recommended = false, description = "可能包含私有仓库访问令牌" }]
+
+[[applications]]
+id = "docker"
+name = "Docker"
+category = "container"
+packages = ["docker", "docker-desktop"]
+executables = ["docker"]
+configs = [{ id = "config", path = "~/.docker/config.json", sensitive = true, recommended = false, description = "可能包含镜像仓库认证信息" }]
+
+[[applications]]
+id = "chromium"
+name = "Chromium / Chrome"
+category = "browser"
+packages = ["chromium", "google-chrome", "google-chrome-beta", "google-chrome-dev"]
+executables = ["chromium", "google-chrome-stable", "google-chrome"]
+configs = [
+  { id = "chromium-flags", path = "~/.config/chromium-flags.conf", role = "flags", platforms = ["linux"], description = "Arch Linux Chromium 持久启动参数" },
+  { id = "chrome-flags", path = "~/.config/chrome-flags.conf", role = "flags", platforms = ["linux"], description = "Arch Linux Google Chrome Stable 启动参数" },
+  { id = "chrome-beta-flags", path = "~/.config/chrome-beta-flags.conf", role = "flags", platforms = ["linux"], description = "Google Chrome Beta 启动参数" },
+  { id = "chrome-dev-flags", path = "~/.config/chrome-dev-flags.conf", role = "flags", platforms = ["linux"], description = "Google Chrome Dev 启动参数" },
+]
+
+[[applications]]
+id = "electron"
+name = "Electron"
+category = "runtime"
+packages = ["electron"]
+executables = ["electron"]
+configs = [
+  { id = "flags", path = "~/.config/electron-flags.conf", role = "flags", platforms = ["linux"], description = "Arch Linux Electron 通用启动参数；版本专属文件优先级更高" },
+]
+
+[[applications]]
+id = "gnome"
+name = "GNOME Desktop"
+category = "desktop"
+packages = ["gnome-shell", "gnome-session", "gnome-control-center"]
+executables = ["gnome-shell", "gsettings", "dconf"]
+configs = [
+  { id = "monitors", path = "~/.config/monitors.xml", role = "state", platforms = ["linux"], description = "显示器布局、缩放、旋转和主显示器设置" },
+  { id = "gtk3", path = "~/.config/gtk-3.0", platforms = ["linux"], description = "GTK 3 用户配置" },
+  { id = "gtk4", path = "~/.config/gtk-4.0", platforms = ["linux"], description = "GTK 4 用户配置" },
+  { id = "autostart", path = "~/.config/autostart", platforms = ["linux"], description = "用户级桌面自动启动项" },
+  { id = "extensions", path = "~/.local/share/gnome-shell/extensions", role = "extensions", platforms = ["linux"], recommended = false, description = "用户安装的 GNOME Shell 扩展代码，迁移后应检查兼容性" },
+  { id = "dconf-keyfile", path = "~/.config/dconf/user.txt", platforms = ["linux"], recommended = false, description = "仅适用于已将 dconf 用户数据库配置为文本 keyfile 的系统" },
+]
+
+[[applications]]
+id = "discord"
+name = "Discord"
+category = "communication"
+packages = ["discord", "discord_arch_electron"]
+executables = ["discord"]
+configs = [
+  { id = "settings", path = "~/.config/discord/settings.json", platforms = ["linux"], description = "Discord 客户端设置" },
+  { id = "flags", path = "~/.config/discord-flags.conf", role = "flags", platforms = ["linux"], description = "discord_arch_electron 启动参数；官方捆绑 Electron 的版本不会读取此文件" },
+]
+
+[[applications]]
+id = "spotify"
+name = "Spotify"
+category = "media"
+packages = ["spotify", "spotify-launcher"]
+executables = ["spotify", "spotify-launcher"]
+configs = [
+  { id = "flags", path = "~/.config/spotify-flags.conf", role = "flags", platforms = ["linux"], description = "支持 Arch Electron 启动器的软件包参数" },
+]
+
+[[applications]]
+id = "kde-plasma"
+name = "KDE Plasma"
+category = "desktop"
+packages = ["plasma-desktop", "plasma-workspace", "plasma-meta"]
+executables = ["plasmashell", "kwin_wayland", "systemsettings"]
+configs = [
+  { id = "globals", path = "~/.config/kdeglobals", platforms = ["linux"], description = "KDE 全局外观、字体和颜色设置" },
+  { id = "kwin", path = "~/.config/kwinrc", platforms = ["linux"], description = "KWin 窗口管理器与合成器设置" },
+  { id = "plasma", path = "~/.config/plasmarc", platforms = ["linux"], description = "Plasma 工作区设置" },
+  { id = "shortcuts", path = "~/.config/kglobalshortcutsrc", platforms = ["linux"], description = "KDE 全局快捷键" },
+  { id = "screen-lock", path = "~/.config/kscreenlockerrc", platforms = ["linux"], description = "锁屏设置" },
+  { id = "power", path = "~/.config/powermanagementprofilesrc", platforms = ["linux"], description = "电源管理配置" },
+  { id = "display-layout", path = "~/.local/share/kscreen", role = "state", platforms = ["linux"], recommended = false, description = "显示器布局与设备相关状态，迁移到不同硬件后应检查" },
+  { id = "plasma-assets", path = "~/.local/share/plasma", role = "extensions", platforms = ["linux"], recommended = false, description = "用户安装的 Plasma 组件、主题和布局资源" },
+  { id = "kwin-assets", path = "~/.local/share/kwin", role = "extensions", platforms = ["linux"], recommended = false, description = "KWin 脚本、效果和装饰资源" },
+]
+
+[[applications]]
+id = "plasma-panel"
+name = "Plasma 面板与任务栏"
+category = "desktop"
+packages = ["plasma-desktop", "plasma-workspace", "plasma-meta"]
+executables = ["plasmashell"]
+configs = [
+  { id = "layout", path = "~/.config/plasma-org.kde.plasma.desktop-appletsrc", role = "state", platforms = ["linux"], description = "面板、任务管理器、系统托盘、应用启动器、桌面组件及其布局" },
+  { id = "shell", path = "~/.config/plasmashellrc", platforms = ["linux"], description = "Plasma Shell、面板行为和视图状态设置" },
+]
+
+[[applications]]
+id = "krunner"
+name = "KRunner"
+category = "desktop"
+packages = ["plasma-workspace", "plasma-desktop", "krunner"]
+executables = ["krunner"]
+configs = [
+  { id = "config", path = "~/.config/krunnerrc", platforms = ["linux"], description = "KRunner 位置、历史行为和运行器设置" },
+]
+
+[[applications]]
+id = "konsole"
+name = "Konsole"
+category = "terminal"
+packages = ["konsole"]
+executables = ["konsole"]
+configs = [
+  { id = "config", path = "~/.config/konsolerc", platforms = ["linux"], description = "Konsole 窗口、标签页、默认配置方案和插件设置" },
+  { id = "profiles", path = "~/.local/share/konsole", platforms = ["linux"], description = "Konsole 用户配置方案、配色和保存的布局" },
+]
+
+[[applications]]
+id = "yakuake"
+name = "Yakuake"
+category = "terminal"
+packages = ["yakuake"]
+executables = ["yakuake"]
+configs = [
+  { id = "config", path = "~/.config/yakuakerc", platforms = ["linux"], description = "Yakuake 下拉终端窗口、标签页、快捷键和外观设置" },
+  { id = "data", path = "~/.local/share/yakuake", role = "extensions", platforms = ["linux"], recommended = false, description = "Yakuake 用户安装的皮肤和数据" },
+]
+
+[[applications]]
+id = "spectacle"
+name = "Spectacle"
+category = "desktop"
+packages = ["spectacle"]
+executables = ["spectacle"]
+configs = [
+  { id = "config", path = "~/.config/spectaclerc", platforms = ["linux"], description = "Spectacle 截图模式、保存位置、文件名、标注和录屏设置" },
+]
+
+[[applications]]
+id = "dolphin"
+name = "Dolphin"
+category = "file-manager"
+packages = ["dolphin"]
+executables = ["dolphin"]
+configs = [
+  { id = "config", path = "~/.config/dolphinrc", platforms = ["linux"], description = "Dolphin 视图、面板、标签页和文件管理行为" },
+  { id = "view-properties", path = "~/.local/share/dolphin", role = "state", platforms = ["linux"], recommended = false, description = "Dolphin 文件夹视图属性和用户数据，可能包含旧机器路径" },
+]
+
+[[applications]]
+id = "kate"
+name = "Kate / KWrite"
+category = "editor"
+packages = ["kate"]
+executables = ["kate", "kwrite"]
+configs = [
+  { id = "config", path = "~/.config/katerc", platforms = ["linux"], description = "Kate 编辑器、插件和会话行为设置" },
+  { id = "data", path = "~/.local/share/kate", role = "state", platforms = ["linux"], recommended = false, description = "Kate 会话、插件数据和用户资源，可能包含旧机器项目路径" },
+]
+
+[[applications]]
+id = "plasma-discover"
+name = "Plasma Discover"
+category = "desktop"
+packages = ["discover"]
+executables = ["plasma-discover"]
+configs = [
+  { id = "config", path = "~/.config/discoverrc", platforms = ["linux"], description = "Discover 软件源、通知和界面偏好设置" },
+]
+
+[[applications]]
+id = "baloo"
+name = "Baloo 文件搜索"
+category = "desktop"
+packages = ["baloo"]
+executables = ["balooctl6", "balooctl"]
+configs = [
+  { id = "config", path = "~/.config/baloofilerc", platforms = ["linux"], description = "Baloo 索引开关、包含位置和排除规则；不迁移可重建的索引数据库" },
+]
+
+[[applications]]
+id = "plasma-clipboard"
+name = "Plasma 剪贴板"
+category = "desktop"
+packages = ["plasma-workspace"]
+executables = ["plasmashell"]
+configs = [
+  { id = "config", path = "~/.config/klipperrc", platforms = ["linux"], description = "Klipper/Plasma 剪贴板历史长度、动作和行为设置" },
+  { id = "history", path = "~/.local/share/klipper", role = "history", platforms = ["linux"], sensitive = true, recommended = false, description = "剪贴板历史可能包含密码、令牌、私密文本或文件路径" },
+]
+
+[[applications]]
+id = "kde-connect"
+name = "KDE Connect"
+category = "communication"
+packages = ["kdeconnect"]
+executables = ["kdeconnect-cli", "kdeconnect-app"]
+configs = [
+  { id = "devices", path = "~/.config/kdeconnect", role = "state", platforms = ["linux"], sensitive = true, recommended = false, description = "已配对设备、证书和插件设置；包含设备身份材料，不应默认迁移到新硬件" },
+]
+
+[[applications]]
+id = "xfce"
+name = "XFCE"
+category = "desktop"
+packages = ["xfce4-session", "xfce4-settings", "xfce4-panel", "xfdesktop"]
+executables = ["startxfce4", "xfce4-session", "xfconf-query"]
+configs = [
+  { id = "config", path = "~/.config/xfce4", platforms = ["linux"], description = "Xfconf XML、面板、桌面、会话和 XFCE 组件设置" },
+  { id = "data", path = "~/.local/share/xfce4", role = "state", platforms = ["linux"], recommended = false, description = "XFCE 用户数据、终端配色和组件资源" },
+  { id = "sessions", path = "~/.cache/sessions", role = "state", platforms = ["linux"], recommended = false, description = "已保存会话；迁移后可能启动不存在的程序" },
+]
+
+[[applications]]
+id = "lxqt"
+name = "LXQt"
+category = "desktop"
+packages = ["lxqt-session", "lxqt-config", "lxqt-panel"]
+executables = ["startlxqt", "lxqt-config-session"]
+configs = [
+  { id = "config", path = "~/.config/lxqt", platforms = ["linux"], description = "LXQt 会话、面板、快捷键、外观与 Wayland 合成器配置" },
+  { id = "pcmanfm", path = "~/.config/pcmanfm-qt", platforms = ["linux"], description = "PCManFM-Qt 文件管理和桌面设置" },
+]
+
+[[applications]]
+id = "cinnamon"
+name = "Cinnamon"
+category = "desktop"
+packages = ["cinnamon", "cinnamon-session"]
+executables = ["cinnamon", "cinnamon-settings"]
+configs = [
+  { id = "config", path = "~/.config/cinnamon", platforms = ["linux"], description = "Cinnamon 文件型用户配置" },
+  { id = "spices", path = "~/.local/share/cinnamon", role = "extensions", platforms = ["linux"], recommended = false, description = "用户安装的 applet、desklet、扩展和主题" },
+]
+
+[[applications]]
+id = "mate"
+name = "MATE Desktop"
+category = "desktop"
+packages = ["mate-session-manager", "mate-control-center", "mate-panel"]
+executables = ["mate-session", "mate-control-center"]
+configs = [
+  { id = "config", path = "~/.config/mate", platforms = ["linux"], description = "MATE 文件型用户配置；主要桌面设置仍由 dconf 管理" },
+  { id = "panel", path = "~/.config/mate-panel", platforms = ["linux"], description = "MATE Panel 文件型配置" },
+]
+
+[[applications]]
+id = "cosmic"
+name = "COSMIC Desktop"
+category = "desktop"
+packages = ["cosmic-session", "cosmic-comp", "cosmic-settings"]
+executables = ["cosmic-session", "cosmic-comp", "cosmic-settings"]
+configs = [
+  { id = "config", path = "~/.config/cosmic", platforms = ["linux"], description = "COSMIC 组件、主题、快捷键、面板和工作区配置" },
+]
+
+[[applications]]
+id = "deepin"
+name = "Deepin Desktop"
+category = "desktop"
+packages = ["deepin-session", "deepin-desktop", "deepin-control-center"]
+executables = ["startdde", "dde-control-center"]
+configs = [
+  { id = "config", path = "~/.config/deepin", platforms = ["linux"], description = "Deepin 桌面组件的文件型配置" },
+  { id = "data", path = "~/.local/share/deepin", role = "state", platforms = ["linux"], recommended = false, description = "Deepin 桌面用户数据和状态" },
+]
+
+[[applications]]
+id = "hyprland"
+name = "Hyprland"
+category = "window-manager"
+packages = ["hyprland"]
+executables = ["Hyprland", "hyprctl"]
+configs = [{ id = "config", path = "~/.config/hypr", platforms = ["linux"], description = "Hyprland、hyprpaper、hypridle、hyprlock、脚本和拆分配置" }]
+
+[[applications]]
+id = "sway"
+name = "Sway"
+category = "window-manager"
+packages = ["sway"]
+executables = ["sway", "swaymsg"]
+configs = [{ id = "config", path = "~/.config/sway", platforms = ["linux"], description = "Sway 主配置、片段、快捷键、输入和输出设置" }]
+
+[[applications]]
+id = "i3"
+name = "i3"
+category = "window-manager"
+packages = ["i3-wm", "i3-gaps"]
+executables = ["i3", "i3-msg"]
+configs = [
+  { id = "config", path = "~/.config/i3", platforms = ["linux"], description = "i3 XDG 配置和脚本" },
+  { id = "legacy", path = "~/.i3", platforms = ["linux"], recommended = false, description = "旧版 i3 配置目录" },
+]
+
+[[applications]]
+id = "bspwm"
+name = "bspwm"
+category = "window-manager"
+packages = ["bspwm"]
+executables = ["bspwm", "bspc"]
+configs = [
+  { id = "config", path = "~/.config/bspwm", platforms = ["linux"], description = "bspwmrc 和窗口管理脚本" },
+  { id = "hotkeys", path = "~/.config/sxhkd", platforms = ["linux"], description = "通常与 bspwm 配套的 sxhkd 快捷键配置" },
+]
+
+[[applications]]
+id = "awesome"
+name = "AwesomeWM"
+category = "window-manager"
+packages = ["awesome"]
+executables = ["awesome", "awesome-client"]
+configs = [{ id = "config", path = "~/.config/awesome", platforms = ["linux"], description = "AwesomeWM Lua 配置、主题和组件" }]
+
+[[applications]]
+id = "qtile"
+name = "Qtile"
+category = "window-manager"
+packages = ["qtile"]
+executables = ["qtile"]
+configs = [{ id = "config", path = "~/.config/qtile", platforms = ["linux"], description = "Qtile Python 配置、脚本和资源" }]
+
+[[applications]]
+id = "niri"
+name = "Niri"
+category = "window-manager"
+packages = ["niri"]
+executables = ["niri"]
+configs = [{ id = "config", path = "~/.config/niri", platforms = ["linux"], description = "Niri KDL 配置和拆分文件" }]
+
+[[applications]]
+id = "river"
+name = "River"
+category = "window-manager"
+packages = ["river"]
+executables = ["river", "riverctl"]
+configs = [{ id = "config", path = "~/.config/river", platforms = ["linux"], description = "River init 脚本和会话配置" }]
+
+[[applications]]
+id = "wayfire"
+name = "Wayfire"
+category = "window-manager"
+packages = ["wayfire"]
+executables = ["wayfire"]
+configs = [{ id = "config", path = "~/.config/wayfire.ini", platforms = ["linux"], description = "Wayfire 插件、输入、输出和效果设置" }]
+
+[[applications]]
+id = "labwc"
+name = "labwc"
+category = "window-manager"
+packages = ["labwc"]
+executables = ["labwc"]
+configs = [
+  { id = "config", path = "~/.config/labwc", platforms = ["linux"], description = "labwc rc.xml、菜单、自动启动和环境配置" },
+  { id = "xfce", path = "~/.config/xfce4/labwc", platforms = ["linux"], description = "XFCE Wayland 会话使用的 labwc 专用配置" },
+]
+
+[[applications]]
+id = "openbox"
+name = "Openbox"
+category = "window-manager"
+packages = ["openbox"]
+executables = ["openbox", "openbox-session"]
+configs = [{ id = "config", path = "~/.config/openbox", platforms = ["linux"], description = "Openbox 菜单、快捷键、规则和自动启动配置" }]
+
+[[applications]]
+id = "xmonad"
+name = "XMonad"
+category = "window-manager"
+packages = ["xmonad", "xmonad-contrib"]
+executables = ["xmonad"]
+configs = [{ id = "config", path = "~/.xmonad", platforms = ["linux"], description = "XMonad Haskell 配置、脚本和编译状态" }]
+
+[[applications]]
+id = "herbstluftwm"
+name = "herbstluftwm"
+category = "window-manager"
+packages = ["herbstluftwm"]
+executables = ["herbstluftwm", "herbstclient"]
+configs = [{ id = "config", path = "~/.config/herbstluftwm", platforms = ["linux"], description = "herbstluftwm autostart、规则、面板和快捷键" }]
+
+[[applications]]
+id = "fluxbox"
+name = "Fluxbox"
+category = "window-manager"
+packages = ["fluxbox"]
+executables = ["fluxbox"]
+configs = [{ id = "config", path = "~/.fluxbox", platforms = ["linux"], description = "Fluxbox 菜单、按键、规则、样式和启动配置" }]
+
+[[applications]]
+id = "waybar"
+name = "Waybar"
+category = "desktop"
+packages = ["waybar"]
+executables = ["waybar"]
+configs = [{ id = "config", path = "~/.config/waybar", platforms = ["linux"], description = "Wayland 状态栏模块、样式和脚本" }]
+
+[[applications]]
+id = "xonsh"
+name = "Xonsh"
+category = "shell"
+packages = ["xonsh"]
+executables = ["xonsh"]
+configs = [
+  { id = "config", path = "~/.config/xonsh", description = "Xonsh XDG 启动配置和 rc.d 片段" },
+  { id = "legacy", path = "~/.xonshrc", recommended = false, description = "传统 Xonsh 用户启动配置" },
+  { id = "history", path = "~/.local/share/xonsh", role = "history", sensitive = true, recommended = false, description = "Xonsh JSON 或 SQLite 命令历史，可能同时记录环境和命令输出" },
+]
+
+[[applications]]
+id = "elvish"
+name = "Elvish"
+category = "shell"
+packages = ["elvish"]
+executables = ["elvish"]
+configs = [
+  { id = "config", path = "~/.config/elvish", description = "Elvish rc.elv、模块和主题" },
+  { id = "data", path = "~/.local/share/elvish", role = "history", sensitive = true, recommended = false, description = "Elvish 命令历史和持久数据" },
+]
+
+[[applications]]
+id = "powershell"
+name = "PowerShell"
+category = "shell"
+packages = ["powershell", "powershell-bin"]
+executables = ["pwsh"]
+configs = [
+  { id = "profile", path = "~/.config/powershell/profile.ps1", description = "当前用户、所有 PowerShell Host 的配置" },
+  { id = "host-profile", path = "~/.config/powershell/Microsoft.PowerShell_profile.ps1", description = "当前用户、PowerShell Host 专用配置" },
+]
+
+[[applications]]
+id = "ksh"
+name = "KornShell"
+category = "shell"
+packages = ["ksh", "oksh", "mksh"]
+executables = ["ksh", "oksh", "mksh"]
+configs = [
+  { id = "kshrc", path = "~/.kshrc", description = "KornShell 交互式配置" },
+  { id = "mkshrc", path = "~/.mkshrc", description = "MirBSD Korn Shell 配置" },
+  { id = "history", path = "~/.ksh_history", role = "history", sensitive = true, recommended = false, description = "KornShell 命令历史" },
+]
+
+[[applications]]
+id = "tcsh"
+name = "Tcsh / Csh"
+category = "shell"
+packages = ["tcsh"]
+executables = ["tcsh", "csh"]
+configs = [
+  { id = "tcshrc", path = "~/.tcshrc", description = "Tcsh 主配置" },
+  { id = "cshrc", path = "~/.cshrc", description = "C Shell 主配置" },
+  { id = "login", path = "~/.login", description = "C Shell 登录配置" },
+  { id = "history", path = "~/.history", role = "history", sensitive = true, recommended = false, description = "Tcsh/Csh 命令历史" },
+]
+
+[[applications]]
+id = "yash"
+name = "Yash"
+category = "shell"
+packages = ["yash"]
+executables = ["yash"]
+configs = [
+  { id = "yashrc", path = "~/.yashrc", description = "Yash 交互式配置" },
+  { id = "profile", path = "~/.yash_profile", description = "Yash 登录配置" },
+  { id = "history", path = "~/.yash_history", role = "history", sensitive = true, recommended = false, description = "Yash 命令历史" },
+]
+
+[[applications]]
+id = "user-environment"
+name = "用户会话与环境变量"
+category = "system"
+configs = [
+  { id = "environment-d", path = "~/.config/environment.d", platforms = ["linux"], description = "systemd 用户服务和图形会话使用的环境变量片段" },
+  { id = "makepkg-xdg", path = "~/.config/pacman/makepkg.conf", platforms = ["linux"], description = "Arch makepkg 用户级构建选项和环境变量" },
+  { id = "makepkg-home", path = "~/.makepkg.conf", platforms = ["linux"], recommended = false, description = "传统位置的 makepkg 用户级构建选项" },
+]
+
+[[applications]]
+id = "global-environment"
+name = "全局环境变量与 Shell"
+category = "system"
+configs = [
+  { id = "environment", path = "/etc/environment", role = "config", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "系统登录环境变量；内容可能包含代理地址或凭据" },
+  { id = "environment-d", path = "/etc/environment.d", role = "config", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "系统级环境变量片段" },
+  { id = "profile", path = "/etc/profile", role = "config", scope = "system", recommended = false, description = "系统级登录 Shell 初始化配置" },
+  { id = "profile-d", path = "/etc/profile.d", role = "config", scope = "system", recommended = false, description = "系统级登录 Shell 初始化片段" },
+  { id = "pam-env", path = "/etc/security/pam_env.conf", role = "config", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "PAM 会话环境变量配置" },
+  { id = "bashrc", path = "/etc/bash.bashrc", role = "config", scope = "system", platforms = ["linux"], recommended = false, description = "Bash 系统级交互配置" },
+  { id = "zsh", path = "/etc/zsh", role = "config", scope = "system", platforms = ["linux"], recommended = false, description = "Zsh 系统级启动配置目录" },
+  { id = "paths", path = "/etc/paths", role = "config", scope = "system", platforms = ["macos"], recommended = false, description = "macOS 登录 Shell 默认 PATH 列表" },
+  { id = "paths-d", path = "/etc/paths.d", role = "config", scope = "system", platforms = ["macos"], recommended = false, description = "macOS PATH 扩展片段" },
+]
+
+[[applications]]
+id = "archlinux-system"
+name = "Arch Linux 系统与包管理"
+category = "system"
+packages = ["pacman"]
+executables = ["pacman"]
+configs = [
+  { id = "pacman", path = "/etc/pacman.conf", scope = "system", platforms = ["linux"], recommended = false, description = "pacman 仓库、签名、缓存和下载选项" },
+  { id = "mirrorlist", path = "/etc/pacman.d/mirrorlist", scope = "system", platforms = ["linux"], recommended = false, description = "Arch Linux 软件仓库镜像列表" },
+  { id = "hooks", path = "/etc/pacman.d/hooks", scope = "system", platforms = ["linux"], recommended = false, description = "用户创建的 pacman 事务钩子" },
+  { id = "makepkg", path = "/etc/makepkg.conf", scope = "system", platforms = ["linux"], recommended = false, description = "makepkg 全局编译 flags、架构和打包选项" },
+  { id = "makepkg-d", path = "/etc/makepkg.conf.d", scope = "system", platforms = ["linux"], recommended = false, description = "makepkg 全局配置片段" },
+  { id = "paru", path = "/etc/paru.conf", scope = "system", platforms = ["linux"], recommended = false, description = "paru AUR 助手系统级配置" },
+]
+
+[[applications]]
+id = "systemd-system"
+name = "systemd 系统配置"
+category = "system"
+packages = ["systemd"]
+executables = ["systemctl"]
+configs = [
+  { id = "units", path = "/etc/systemd/system", scope = "system", platforms = ["linux"], recommended = false, description = "管理员创建的系统服务、覆盖片段和启用链接；迁移前需检查机器相关路径" },
+  { id = "user-units", path = "/etc/systemd/user", scope = "system", platforms = ["linux"], recommended = false, description = "所有用户可用的 systemd 用户单元" },
+  { id = "system-conf-d", path = "/etc/systemd/system.conf.d", scope = "system", platforms = ["linux"], recommended = false, description = "systemd 系统管理器本地覆盖配置" },
+  { id = "user-conf-d", path = "/etc/systemd/user.conf.d", scope = "system", platforms = ["linux"], recommended = false, description = "systemd 用户管理器全局覆盖配置" },
+  { id = "network", path = "/etc/systemd/network", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "systemd-networkd 网络配置，可能包含静态地址、无线或隧道信息" },
+]
+
+[[applications]]
+id = "linux-core-system"
+name = "Linux 核心系统配置"
+category = "system"
+configs = [
+  { id = "sysctl", path = "/etc/sysctl.d", scope = "system", platforms = ["linux"], recommended = false, description = "内核运行参数的本地覆盖片段" },
+  { id = "modprobe", path = "/etc/modprobe.d", scope = "system", platforms = ["linux"], recommended = false, description = "内核模块参数、别名和黑名单" },
+  { id = "udev", path = "/etc/udev/rules.d", scope = "system", platforms = ["linux"], recommended = false, description = "管理员创建的设备规则" },
+  { id = "limits", path = "/etc/security/limits.d", scope = "system", platforms = ["linux"], recommended = false, description = "用户和进程资源限制片段" },
+  { id = "fstab", path = "/etc/fstab", role = "state", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "文件系统挂载定义，包含设备标识且通常不可直接迁移" },
+  { id = "crypttab", path = "/etc/crypttab", role = "state", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "加密块设备定义，可能引用密钥文件和机器专用设备" },
+  { id = "locale", path = "/etc/locale.conf", role = "state", scope = "system", platforms = ["linux"], recommended = false, description = "系统区域与语言设置" },
+  { id = "vconsole", path = "/etc/vconsole.conf", role = "state", scope = "system", platforms = ["linux"], recommended = false, description = "Linux 虚拟控制台键盘和字体设置" },
+  { id = "hostname", path = "/etc/hostname", role = "state", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "机器主机名，迁移时通常仅供参考" },
+]
+
+[[applications]]
+id = "networkmanager-system"
+name = "NetworkManager 系统配置"
+category = "system"
+packages = ["networkmanager"]
+executables = ["nmcli"]
+configs = [
+  { id = "conf-d", path = "/etc/NetworkManager/conf.d", scope = "system", platforms = ["linux"], recommended = false, description = "NetworkManager 管理员覆盖配置" },
+  { id = "connections", path = "/etc/NetworkManager/system-connections", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "网络连接配置，可能包含 Wi-Fi、VPN 或认证凭据" },
+]
+
+[[applications]]
+id = "openssh-server"
+name = "OpenSSH 服务端"
+category = "system"
+packages = ["openssh"]
+executables = ["sshd"]
+configs = [
+  { id = "sshd", path = "/etc/ssh/sshd_config", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "SSH 服务端访问和认证策略" },
+  { id = "sshd-d", path = "/etc/ssh/sshd_config.d", scope = "system", platforms = ["linux"], sensitive = true, recommended = false, description = "SSH 服务端配置片段" },
+]
+
+[[applications]]
+id = "macos-system"
+name = "macOS 系统启动项"
+category = "system"
+configs = [
+  { id = "launch-daemons", path = "/Library/LaunchDaemons", role = "state", scope = "system", platforms = ["macos"], sensitive = true, recommended = false, description = "第三方系统级启动服务；仅供审阅，不能直接跨机器恢复" },
+  { id = "launch-agents", path = "/Library/LaunchAgents", role = "state", scope = "system", platforms = ["macos"], sensitive = true, recommended = false, description = "所有用户可用的第三方登录启动项；仅供审阅" },
+]

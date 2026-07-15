@@ -1,0 +1,14 @@
+{
+  "name": "envweave-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.7.0",
+  "scripts": {
+    "dev": "pnpm --dir apps/desktop tauri dev",
+    "build": "pnpm --dir apps/desktop tauri build",
+    "check": "pnpm --dir apps/desktop check",
+    "test": "cargo test --workspace",
+    "test:linux:ubuntu": "bash scripts/linux-vm-test.sh ubuntu",
+    "test:linux:arch": "bash scripts/linux-vm-test.sh arch",
+    "test:linux": "bash scripts/linux-vm-test.sh all"
+  }
+}

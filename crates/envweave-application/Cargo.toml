@@ -1,0 +1,22 @@
+[package]
+name = "envweave-application"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+envweave-domain.workspace = true
+envweave-discovery.workspace = true
+envweave-manifest = { path = "../envweave-manifest" }
+envweave-files = { path = "../envweave-files" }
+envweave-backup = { path = "../envweave-backup" }
+envweave-diff = { path = "../envweave-diff" }
+envweave-git = { path = "../envweave-git" }
+envweave-packages = { path = "../envweave-packages" }
+envweave-restore.workspace = true
+envweave-security = { path = "../envweave-security" }
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

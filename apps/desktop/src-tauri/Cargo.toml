@@ -1,0 +1,27 @@
+[package]
+name = "envweave-desktop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "envweave_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+envweave-application.workspace = true
+envweave-backup = { path = "../../../crates/envweave-backup" }
+envweave-files = { path = "../../../crates/envweave-files" }
+envweave-diff = { path = "../../../crates/envweave-diff" }
+envweave-discovery.workspace = true
+envweave-git = { path = "../../../crates/envweave-git" }
+envweave-manifest = { path = "../../../crates/envweave-manifest" }
+envweave-packages = { path = "../../../crates/envweave-packages" }
+serde.workspace = true
+tauri = { version = "2.11.5", features = [] }
+tauri-plugin-dialog = "2.7.1"
+ts-rs = { version = "12.0.1", features = ["serde-compat"] }

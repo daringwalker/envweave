@@ -1,0 +1,146 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify release source
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: pnpm install --frozen-lockfile
+      - run: bash scripts/check-release.sh "${GITHUB_REF_NAME}"
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+      - run: pnpm check
+      - name: Enforce stable macOS signing policy
+        if: ${{ !contains(github.ref_name, '-') }}
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: bash scripts/check-macos-release-secrets.sh
+
+  build:
+    name: Build ${{ matrix.label }}
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Linux x86_64
+            runner: ubuntu-22.04
+            platform: linux
+            arch: x86_64
+            bundles: deb,appimage
+          - label: macOS Apple Silicon
+            runner: macos-15
+            platform: macos
+            arch: aarch64
+            bundles: dmg
+          - label: macOS Intel
+            runner: macos-15-intel
+            platform: macos
+            arch: x86_64
+            bundles: dmg
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Linux desktop dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-${{ matrix.platform }}-${{ matrix.arch }}
+      - run: pnpm install --frozen-lockfile
+      - name: Configure macOS signing
+        if: runner.os == 'macOS'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: bash scripts/import-macos-certificate.sh
+      - name: Build bundles
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: pnpm --dir apps/desktop tauri build --bundles "${{ matrix.bundles }}"
+      - name: Collect release artifacts
+        run: bash scripts/collect-release-artifacts.sh "${{ matrix.platform }}" "${{ matrix.arch }}" release-artifacts
+      - uses: actions/upload-artifact@v6
+        with:
+          name: envweave-${{ matrix.platform }}-${{ matrix.arch }}
+          path: release-artifacts/*
+          if-no-files-found: error
+          retention-days: 14
+
+  draft-release:
+    name: Create draft prerelease
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: envweave-*
+          path: release-artifacts
+          merge-multiple: true
+      - name: Generate checksums
+        working-directory: release-artifacts
+        run: sha256sum EnvWeave_* BUILD-INFO-* > SHA256SUMS.txt
+      - name: Attest release artifacts
+        if: ${{ github.event.repository.visibility == 'public' }}
+        uses: actions/attest@v4
+        with:
+          subject-path: "release-artifacts/EnvWeave_*"
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" release-artifacts/* \
+            --draft \
+            --prerelease \
+            --verify-tag \
+            --title "EnvWeave ${GITHUB_REF_NAME#v}" \
+            --notes-file "docs/releases/${GITHUB_REF_NAME}.md"
