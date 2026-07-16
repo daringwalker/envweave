@@ -35,7 +35,7 @@ pub enum ItemKind {
     Directory,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum ConfigScope {
     #[default]
@@ -54,7 +54,7 @@ pub enum AdapterKind {
     Launchd,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ApplyStrategy {
     #[default]
@@ -138,6 +138,10 @@ pub enum ManifestError {
     UnsafeSource(String),
     #[error("item {0} has an invalid target")]
     InvalidTarget(String),
+    #[error("item {0} has an unsafe excluded path: {1}")]
+    UnsafeExclude(String, String),
+    #[error("file item {0} can only use replace without excluded child paths")]
+    InvalidFilePolicy(String),
 }
 
 impl Manifest {
@@ -190,6 +194,25 @@ impl Manifest {
             }
             if item.scope == ConfigScope::System && !Path::new(&item.target).is_absolute() {
                 return Err(ManifestError::InvalidTarget(item.id.clone()));
+            }
+            if item.kind == ItemKind::File
+                && (item.apply_strategy != ApplyStrategy::Replace || !item.exclude.is_empty())
+            {
+                return Err(ManifestError::InvalidFilePolicy(item.id.clone()));
+            }
+            for excluded in &item.exclude {
+                let path = Path::new(excluded.trim_end_matches('/'));
+                if excluded.trim().is_empty()
+                    || path.is_absolute()
+                    || path
+                        .components()
+                        .any(|component| !matches!(component, Component::Normal(_)))
+                {
+                    return Err(ManifestError::UnsafeExclude(
+                        item.id.clone(),
+                        excluded.clone(),
+                    ));
+                }
             }
         }
         Ok(())
@@ -267,6 +290,35 @@ mod tests {
         assert!(matches!(
             manifest.validate(),
             Err(ManifestError::InvalidTarget(_))
+        ));
+    }
+
+    #[test]
+    fn rejects_unsafe_excluded_paths() {
+        let mut value = item("unsafe-exclude", "files/value");
+        value.kind = ItemKind::Directory;
+        value.exclude = vec!["../outside".into()];
+        let manifest = Manifest {
+            format_version: CURRENT_FORMAT_VERSION,
+            items: vec![value],
+        };
+        assert!(matches!(
+            manifest.validate(),
+            Err(ManifestError::UnsafeExclude(_, _))
+        ));
+    }
+
+    #[test]
+    fn rejects_directory_only_policy_on_a_file() {
+        let mut value = item("file-policy", "files/value");
+        value.apply_strategy = ApplyStrategy::Merge;
+        let manifest = Manifest {
+            format_version: CURRENT_FORMAT_VERSION,
+            items: vec![value],
+        };
+        assert!(matches!(
+            manifest.validate(),
+            Err(ManifestError::InvalidFilePolicy(_))
         ));
     }
 }

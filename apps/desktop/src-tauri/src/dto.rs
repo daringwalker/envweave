@@ -159,6 +159,19 @@ pub struct RestoreStepDto {
     pub disposition: String,
     pub reasons: Vec<String>,
     pub dependencies: Vec<String>,
+    pub apply_strategy: String,
+    pub creates: Vec<String>,
+    pub updates: Vec<String>,
+    pub deletes: Vec<String>,
+    pub preserved_count: usize,
+}
+fn apply_strategy(value: envweave_manifest::ApplyStrategy) -> String {
+    match value {
+        envweave_manifest::ApplyStrategy::Replace => "replace",
+        envweave_manifest::ApplyStrategy::Merge => "merge",
+        envweave_manifest::ApplyStrategy::KeepExisting => "keep-existing",
+    }
+    .into()
 }
 fn disposition(value: RestoreDisposition) -> String {
     match value {
@@ -180,6 +193,11 @@ impl From<RestoreStep> for RestoreStepDto {
             disposition: disposition(value.disposition),
             reasons: value.reasons,
             dependencies: value.dependencies,
+            apply_strategy: apply_strategy(value.apply_strategy),
+            creates: value.creates,
+            updates: value.updates,
+            deletes: value.deletes,
+            preserved_count: value.preserved_count,
         }
     }
 }

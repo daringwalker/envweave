@@ -224,19 +224,24 @@ impl AppService {
                 target.display().to_string(),
             ));
         }
+        let kind = if target.is_dir() {
+            envweave_manifest::ItemKind::Directory
+        } else {
+            envweave_manifest::ItemKind::File
+        };
         let item = ConfigItem {
             id: id.clone(),
             application_id: base,
             name: display,
             source: PathBuf::from("files").join(&id),
             target: portable,
-            kind: if target.is_dir() {
-                envweave_manifest::ItemKind::Directory
-            } else {
-                envweave_manifest::ItemKind::File
-            },
+            kind: kind.clone(),
             adapter: AdapterKind::Filesystem,
-            apply_strategy: ApplyStrategy::Replace,
+            apply_strategy: if kind == envweave_manifest::ItemKind::Directory {
+                ApplyStrategy::Merge
+            } else {
+                ApplyStrategy::Replace
+            },
             portability,
             scope: if target.starts_with(&home) {
                 ConfigScope::User

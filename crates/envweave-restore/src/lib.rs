@@ -4,7 +4,7 @@
 
 use envweave_domain::Platform;
 use envweave_manifest::{
-    AdapterKind, ApplyStrategy, ConfigItem, ConfigScope, Manifest, Portability,
+    AdapterKind, ApplyStrategy, ConfigItem, ConfigScope, ItemKind, Manifest, Portability,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -54,6 +54,11 @@ pub struct RestoreStep {
     pub disposition: RestoreDisposition,
     pub reasons: Vec<String>,
     pub dependencies: Vec<String>,
+    pub apply_strategy: ApplyStrategy,
+    pub creates: Vec<String>,
+    pub updates: Vec<String>,
+    pub deletes: Vec<String>,
+    pub preserved_count: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -514,6 +519,12 @@ fn plan_id(repository: &Path, manifest: &Manifest, facts: &MachineFacts) -> Stri
     hasher.update(facts.home.to_string_lossy().as_bytes());
     for item in &manifest.items {
         hash_tree(&repository.join(&item.source), &mut hasher);
+        match envweave_files::target_path(&facts.home, item) {
+            Ok(target) => hash_tree(&target, &mut hasher),
+            Err(_) => {
+                hasher.update(b"invalid-target");
+            }
+        };
     }
     hasher.finalize().to_hex().to_string()
 }
@@ -655,6 +666,7 @@ fn plan_item(
 ) -> RestoreStep {
     let mut disposition = RestoreDisposition::Ready;
     let mut reasons = Vec::new();
+    let mut preview = envweave_files::ApplyPreview::default();
     if !item.enabled {
         set_disposition(
             &mut disposition,
@@ -720,20 +732,12 @@ fn plan_item(
                 "此配置适配器尚未开放执行",
             );
         }
-        if item.apply_strategy != ApplyStrategy::Replace {
+        if !item.validators.is_empty() {
             set_disposition(
                 &mut disposition,
                 &mut reasons,
                 RestoreDisposition::Blocked,
-                "此合并策略尚未开放执行",
-            );
-        }
-        if !item.exclude.is_empty() || !item.validators.is_empty() {
-            set_disposition(
-                &mut disposition,
-                &mut reasons,
-                RestoreDisposition::Blocked,
-                "排除规则或校验器尚未开放执行",
+                "校验器尚未开放执行",
             );
         }
         if !item.conditions.required_packages.is_empty() {
@@ -767,6 +771,39 @@ fn plan_item(
                 RestoreDisposition::Blocked,
                 "仓库副本不存在",
             );
+        } else if item.adapter == AdapterKind::Filesystem {
+            match envweave_files::preview_apply(repository, &facts.home, item) {
+                Ok(value) => preview = value,
+                Err(error) => set_disposition(
+                    &mut disposition,
+                    &mut reasons,
+                    RestoreDisposition::Blocked,
+                    &format!("无法生成文件影响预览：{error}"),
+                ),
+            }
+        }
+        if item.kind == ItemKind::Directory {
+            match item.apply_strategy {
+                ApplyStrategy::Replace => {
+                    if !preview.deletes.is_empty() {
+                        set_disposition(
+                            &mut disposition,
+                            &mut reasons,
+                            RestoreDisposition::Review,
+                            &format!("将删除 {} 个仅存在于本机的路径", preview.deletes.len()),
+                        );
+                    }
+                }
+                ApplyStrategy::Merge => {
+                    reasons.push("合并仓库内容，并保留仅存在于本机的路径".into())
+                }
+                ApplyStrategy::KeepExisting => {
+                    reasons.push("只补充缺失路径，不覆盖本机已有内容".into())
+                }
+            }
+            if !item.exclude.is_empty() {
+                reasons.push(format!("保留 {} 个排除路径及其内容", item.exclude.len()));
+            }
         }
         match envweave_files::scan(repository, &facts.home, item) {
             Ok(envweave_files::FileStatus::InSync) => set_disposition(
@@ -821,6 +858,19 @@ fn plan_item(
         disposition,
         reasons,
         dependencies: item.dependencies.clone(),
+        apply_strategy: item.apply_strategy,
+        creates: preview.creates.iter().map(display_relative).collect(),
+        updates: preview.updates.iter().map(display_relative).collect(),
+        deletes: preview.deletes.iter().map(display_relative).collect(),
+        preserved_count: preview.preserves.len(),
+    }
+}
+
+fn display_relative(path: &PathBuf) -> String {
+    if path == Path::new(".") {
+        "目标文件".into()
+    } else {
+        path.to_string_lossy().into_owned()
     }
 }
 
@@ -1087,14 +1137,116 @@ mod tests {
     }
 
     #[test]
+    fn directory_replace_requires_review_and_lists_deletions() {
+        let repository = tempfile::tempdir().unwrap();
+        let home = tempfile::tempdir().unwrap();
+        fs::create_dir_all(repository.path().join("files/settings")).unwrap();
+        fs::create_dir_all(home.path().join(".settings")).unwrap();
+        fs::write(
+            repository.path().join("files/settings/shared"),
+            "repository",
+        )
+        .unwrap();
+        fs::write(home.path().join(".settings/shared"), "local").unwrap();
+        fs::write(home.path().join(".settings/local-only"), "local").unwrap();
+        let mut settings = item("settings", Portability::Portable);
+        settings.kind = ItemKind::Directory;
+        settings.target = "~/.settings".into();
+        let manifest = Manifest {
+            format_version: 2,
+            items: vec![settings],
+        };
+
+        let plan = build_plan(repository.path(), &manifest, facts(home.path()));
+
+        assert_eq!(plan.steps[0].disposition, RestoreDisposition::Review);
+        assert!(plan.steps[0].updates.contains(&"shared".into()));
+        assert!(plan.steps[0].deletes.contains(&"local-only".into()));
+    }
+
+    #[test]
+    fn merge_directory_executes_without_deleting_local_content() {
+        let repository = tempfile::tempdir().unwrap();
+        let home = tempfile::tempdir().unwrap();
+        fs::create_dir_all(repository.path().join("files/settings")).unwrap();
+        fs::create_dir_all(home.path().join(".settings")).unwrap();
+        fs::write(
+            repository.path().join("files/settings/shared"),
+            "repository",
+        )
+        .unwrap();
+        fs::write(home.path().join(".settings/shared"), "local").unwrap();
+        fs::write(home.path().join(".settings/local-only"), "local").unwrap();
+        let mut settings = item("settings", Portability::Portable);
+        settings.kind = ItemKind::Directory;
+        settings.target = "~/.settings".into();
+        settings.apply_strategy = ApplyStrategy::Merge;
+        let manifest = Manifest {
+            format_version: 2,
+            items: vec![settings],
+        };
+        let machine = facts(home.path());
+        let plan = build_plan(repository.path(), &manifest, machine.clone());
+
+        let run = execute_plan(
+            repository.path(),
+            &manifest,
+            machine,
+            &plan.id,
+            &BTreeSet::from(["settings".into()]),
+        )
+        .unwrap();
+
+        assert_eq!(run.status, RestoreRunStatus::Completed);
+        assert_eq!(
+            fs::read_to_string(home.path().join(".settings/shared")).unwrap(),
+            "repository"
+        );
+        assert!(home.path().join(".settings/local-only").exists());
+    }
+
+    #[test]
+    fn local_changes_invalidate_a_reviewed_plan() {
+        let repository = tempfile::tempdir().unwrap();
+        let home = tempfile::tempdir().unwrap();
+        fs::create_dir_all(repository.path().join("files")).unwrap();
+        fs::write(repository.path().join("files/portable"), "repository").unwrap();
+        fs::write(home.path().join(".portable"), "before-review").unwrap();
+        let manifest = Manifest {
+            format_version: 2,
+            items: vec![item("portable", Portability::Portable)],
+        };
+        let machine = facts(home.path());
+        let plan = build_plan(repository.path(), &manifest, machine.clone());
+        fs::write(home.path().join(".portable"), "changed-after-review").unwrap();
+
+        let result = execute_plan(
+            repository.path(),
+            &manifest,
+            machine,
+            &plan.id,
+            &BTreeSet::from(["portable".into()]),
+        );
+
+        assert!(matches!(result, Err(RestoreError::PlanChanged)));
+        assert_eq!(
+            fs::read_to_string(home.path().join(".portable")).unwrap(),
+            "changed-after-review"
+        );
+    }
+
+    #[test]
     fn rolls_back_the_batch_when_a_later_item_fails() {
         let repository = tempfile::tempdir().unwrap();
         let home = tempfile::tempdir().unwrap();
-        fs::create_dir_all(repository.path().join("files/broken")).unwrap();
+        fs::create_dir_all(repository.path().join("files")).unwrap();
+        fs::write(repository.path().join("files/broken"), "new-broken").unwrap();
         fs::write(repository.path().join("files/base"), "new-base").unwrap();
         fs::write(home.path().join(".base"), "old-base").unwrap();
+        fs::write(home.path().join(".blocked"), "not-a-directory").unwrap();
         let base = item("base", Portability::Portable);
         let mut broken = item("broken", Portability::Portable);
+        broken.target = "~/.blocked/child".into();
         broken.dependencies = vec!["base".into()];
         let manifest = Manifest {
             format_version: 2,

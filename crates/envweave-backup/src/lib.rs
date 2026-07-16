@@ -107,7 +107,14 @@ fn remove_existing(path: &Path) -> Result<(), std::io::Error> {
             fs::remove_dir_all(path)
         }
         Ok(_) => fs::remove_file(path),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(error)
+            if matches!(
+                error.kind(),
+                std::io::ErrorKind::NotFound | std::io::ErrorKind::NotADirectory
+            ) =>
+        {
+            Ok(())
+        }
         Err(error) => Err(error),
     }
 }

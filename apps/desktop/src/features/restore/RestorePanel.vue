@@ -32,6 +32,15 @@ const availableTools = computed(() => plan.value?.facts.tools.filter((tool) => t
 const restoreCount = computed(() => selectedIds.value.length);
 const installablePackages = computed(() => packageSteps.value.filter((step) => step.action && step.disposition !== "blocked"));
 const packageCount = computed(() => selectedPackages.value.length);
+const selectedDeleteCount = computed(() => plan.value?.steps
+  .filter((step) => selectedIds.value.includes(step.id))
+  .reduce((total, step) => total + step.deletes.length, 0) ?? 0);
+
+const strategyLabels: Record<string, string> = {
+  replace: "镜像替换",
+  merge: "合并覆盖",
+  "keep-existing": "保留已有",
+};
 
 function packageKey(step: MigrationPackageStepDto) {
   const value = step.package;
@@ -140,7 +149,10 @@ function runTime(value: string) {
 }
 
 async function execute() {
-  if (!restoreCount.value || !window.confirm(`将恢复 ${restoreCount.value} 项用户配置。所有目标都会先备份，确定继续吗？`)) return;
+  const deletion = selectedDeleteCount.value
+    ? `其中会删除 ${selectedDeleteCount.value} 个仅存在于本机的路径。`
+    : "不会删除仅存在于本机的路径。";
+  if (!restoreCount.value || !window.confirm(`将恢复 ${restoreCount.value} 项用户配置，${deletion} 所有目标都会先备份，确定继续吗？`)) return;
   busy.value = true;
   message.value = "";
   run.value = undefined;
@@ -213,8 +225,12 @@ onMounted(refresh);
       <div v-else class="restore-steps">
         <article v-for="step in visible" :key="step.id" :class="step.disposition">
           <span class="step-state"><label v-if="step.disposition==='ready'||step.disposition==='review'" class="review-choice"><input type="checkbox" :checked="selectedIds.includes(step.id)" @change="toggleSelection(step.id, ($event.target as HTMLInputElement).checked)">{{ labels[step.disposition] }}</label><template v-else>{{ labels[step.disposition] }}</template></span>
-          <div class="step-main"><strong>{{ step.name }}</strong><code>{{ step.target }}</code><small>{{ step.applicationId }}<template v-if="step.dependencies.length"> · 依赖 {{ step.dependencies.join("、") }}</template></small></div>
-          <ul><li v-for="reason in step.reasons" :key="reason">{{ reason }}</li></ul>
+          <div class="step-main"><strong>{{ step.name }}</strong><code>{{ step.target }}</code><small>{{ step.applicationId }} · {{ strategyLabels[step.applyStrategy] }}<template v-if="step.dependencies.length"> · 依赖 {{ step.dependencies.join("、") }}</template></small></div>
+          <div class="step-impact">
+            <div class="impact-counts"><span v-if="step.creates.length" class="create">新增 {{ step.creates.length }}</span><span v-if="step.updates.length" class="update">覆盖 {{ step.updates.length }}</span><span v-if="step.deletes.length" class="delete">删除 {{ step.deletes.length }}</span><span v-if="step.preservedCount" class="preserve">保留 {{ step.preservedCount }}</span><span v-if="!step.creates.length&&!step.updates.length&&!step.deletes.length">无磁盘变更</span></div>
+            <details v-if="step.deletes.length" class="deletion-preview"><summary>查看删除清单</summary><code v-for="path in step.deletes" :key="path">{{ path }}</code></details>
+            <ul><li v-for="reason in step.reasons" :key="reason">{{ reason }}</li></ul>
+          </div>
         </article>
       </div>
       <div v-if="run" class="restore-result" :class="run.status"><strong>{{ run.status === "completed" ? "事务恢复完成" : run.status === "rollback-failed" ? "事务需要人工恢复" : "事务已回滚" }}</strong><span>记录 {{ run.id }} · {{ run.items.length }} 项；可在备份页面单独恢复历史内容。</span></div>
