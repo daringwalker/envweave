@@ -6,7 +6,7 @@ EnvWeave 是一个面向 Linux 与 macOS 的桌面环境迁移管理器。它帮
 
 除配置文件外，EnvWeave 还保存软件资产清单并辅助恢复；支持 Arch Linux pacman/AUR、Flatpak、Homebrew、Mac App Store，以及由 Linux Desktop Entry 暴露的 AppImage 和解压运行程序。
 
-当前版本为可运行的 `0.1.0-alpha.3` 开发者预览版，提供完整的本地迁移闭环和 Git/软件包恢复基础能力。Alpha 版本用于受控测试，不应在没有独立备份的环境中作为唯一恢复手段。
+当前版本为可运行的 `0.1.0-alpha.4` 开发者预览版，提供完整的本地迁移闭环和 Git/软件包恢复基础能力。Alpha 版本用于受控测试，不应在没有独立备份的环境中作为唯一恢复手段。
 
 ## 已实现功能
 

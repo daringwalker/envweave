@@ -445,7 +445,7 @@ mod tests {
             .unwrap();
         fs::write(&file, "incoming\n").unwrap();
         git.commit_all(directory.path(), "incoming").unwrap();
-        git.run(directory.path(), &["checkout", "main"]).unwrap();
+        git.run(directory.path(), &["checkout", "-"]).unwrap();
         fs::write(&file, "local\n").unwrap();
         git.commit_all(directory.path(), "local").unwrap();
 

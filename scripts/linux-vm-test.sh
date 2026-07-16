@@ -66,7 +66,9 @@ start_instance() {
   esac
 
   if instance_exists "$name"; then
-    limactl start --yes --timeout 20m "$name"
+    if [[ "$(instance_status "$name")" != "Running" ]]; then
+      limactl start --yes --timeout 20m "$name"
+    fi
   else
     limactl start --yes \
       --name "$name" \

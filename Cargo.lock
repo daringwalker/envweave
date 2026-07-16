@@ -744,7 +744,7 @@ checksum = "4ef6b89e5b37196644d8796de5268852ff179b44e96276cf4290264843743bb7"
 
 [[package]]
 name = "envweave-application"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-backup",
  "envweave-diff",
@@ -762,7 +762,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-backup"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-domain",
  "serde",
@@ -773,7 +773,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-desktop"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-application",
  "envweave-backup",
@@ -792,7 +792,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-diff"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "blake3",
  "envweave-domain",
@@ -802,7 +802,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-discovery"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-domain",
  "serde",
@@ -813,14 +813,14 @@ dependencies = [
 
 [[package]]
 name = "envweave-domain"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "thiserror 2.0.18",
 ]
 
 [[package]]
 name = "envweave-files"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-domain",
  "envweave-manifest",
@@ -831,7 +831,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-git"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-domain",
  "tempfile",
@@ -840,7 +840,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-manifest"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-domain",
  "serde",
@@ -851,7 +851,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-packages"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-domain",
  "serde",
@@ -862,7 +862,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-restore"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "blake3",
  "envweave-backup",
@@ -877,7 +877,7 @@ dependencies = [
 
 [[package]]
 name = "envweave-security"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "envweave-domain",
  "tempfile",

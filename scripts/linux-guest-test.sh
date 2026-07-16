@@ -67,6 +67,9 @@ install_toolchains() {
 }
 
 prepare_source() {
+  # Results from a previous version can make a failed run look successful.
+  # Keep compilation caches, but start every distro run with empty artifacts.
+  rm -rf "$ARTIFACTS"
   mkdir -p "$WORK" "$LOGS"
   rsync -a --delete \
     --exclude .git \
@@ -85,6 +88,10 @@ run_logged() {
 }
 
 package_application() {
+  # Tauri/linuxdeploy does not reliably replace every symlink in an AppDir
+  # left by an earlier version. Keep the Rust compilation cache, but always
+  # assemble release bundles from an empty directory.
+  rm -rf target/release/bundle
   case "$DISTRO" in
     ubuntu)
       run_logged package pnpm --dir apps/desktop tauri build --bundles deb,appimage

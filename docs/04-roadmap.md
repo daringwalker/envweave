@@ -94,7 +94,7 @@
 - 用户文档、故障排查和卸载说明。
 - 性能、安全和恢复演练报告。
 
-当前状态：`0.1.0-alpha.3` 已建立统一版本、变更日志、安装校验文档和标签触发的草稿预发布流水线；流水线使用 Ubuntu 22.04 构建 Deb/AppImage，并分别使用原生 Apple Silicon 与 Intel runner 构建 DMG，汇总后生成 SHA-256 和公开仓库构建证明。Linux Wayland 启动会规避 WebKitGTK DMABUF 空白窗口问题，AppImage 启动器会处理 Arch 系统 Wayland/EGL 库冲突，虚拟机验收会直接把 Ubuntu 构建产物复制到 Arch 启动。稳定版标签会强制要求 Developer ID 签名与 Apple 公证凭据。Ubuntu/Arch 虚拟机已自动构建并启动验证 Linux 产物，本地 macOS DMG 也已验证。仍缺少真实 Developer ID 凭据验收、自动更新、RPM 和干净系统端到端迁移验收。
+当前状态：`0.1.0-alpha.4` 已建立统一版本、变更日志、安装校验文档和标签触发的草稿预发布流水线；流水线使用 Ubuntu 22.04 构建 Deb/AppImage，并分别使用原生 Apple Silicon 与 Intel runner 构建 DMG，汇总后生成 SHA-256 和公开仓库构建证明。Linux Wayland 启动会规避 WebKitGTK DMABUF 空白窗口问题，AppImage 启动器会处理 Arch 系统 Wayland/EGL 库冲突，虚拟机验收会直接把 Ubuntu 构建产物复制到 Arch 启动。稳定版标签会强制要求 Developer ID 签名与 Apple 公证凭据。Ubuntu/Arch 虚拟机已自动构建并启动验证 Linux 产物，本地 macOS DMG 也已验证。仍缺少真实 Developer ID 凭据验收、自动更新、RPM 和干净系统端到端迁移验收。
 
 ## 阶段 7：新机器恢复内核（进行中）
 

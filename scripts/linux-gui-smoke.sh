@@ -49,23 +49,36 @@ if [[ -z "$window" ]]; then
   exit 1
 fi
 xdotool windowactivate --sync "$window"
-sleep 2
-import -display "$DISPLAY" -window root "$ARTIFACTS/gui-smoke.png"
-test -s "$ARTIFACTS/gui-smoke.png"
 
 # A visible GTK window is not enough: WebKit can create a window while its
-# web view remains blank under a headless renderer. Check the stable content
-# area for both a light background and non-zero visual variation.
+# web view remains blank for several seconds under a cold headless renderer.
+# Poll the stable content area until the frontend has actually painted.
 if command -v magick >/dev/null; then
   image_command=(magick)
 else
   image_command=(convert)
 fi
-read -r render_mean render_deviation < <(
-  "${image_command[@]}" "$ARTIFACTS/gui-smoke.png" \
-    -crop 800x600+400+170 -colorspace gray \
-    -format '%[fx:mean] %[fx:standard_deviation]\n' info:
-)
+render_mean="0"
+render_deviation="0"
+for _ in $(seq 1 30); do
+  if ! kill -0 "$app_pid" 2>/dev/null; then
+    echo "EnvWeave exited before rendering expected content" >&2
+    cat "$ARTIFACTS/logs/gui-smoke.log" >&2
+    exit 1
+  fi
+  import -display "$DISPLAY" -window root "$ARTIFACTS/gui-smoke.png"
+  test -s "$ARTIFACTS/gui-smoke.png"
+  read -r render_mean render_deviation < <(
+    "${image_command[@]}" "$ARTIFACTS/gui-smoke.png" \
+      -crop 800x600+400+170 -colorspace gray \
+      -format '%[fx:mean] %[fx:standard_deviation]\n' info:
+  )
+  if awk -v mean="$render_mean" -v deviation="$render_deviation" \
+    'BEGIN { exit !(mean > 0.70 && deviation > 0.005) }'; then
+    break
+  fi
+  sleep 1
+done
 if ! awk -v mean="$render_mean" -v deviation="$render_deviation" \
   'BEGIN { exit !(mean > 0.70 && deviation > 0.005) }'; then
   echo "EnvWeave window did not render expected content (mean=$render_mean, deviation=$render_deviation)" >&2
